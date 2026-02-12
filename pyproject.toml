@@ -1,0 +1,32 @@
+[project]
+name = "spa-crawler"
+version = "0.0.1"
+description = "A small CLI-friendly crawler that optionally logs in, crawls a website, and mirrors pages + static assets into a local directory so the result can be served using any static web server (Caddy, Nginx, etc)"
+requires-python = ">=3.13,<4.0"
+readme = "README.md"
+
+dependencies = ["crawlee[playwright]", "typer>=0.23.0", "yarl>=1.22.0"]
+
+[dependency-groups]
+dev = ["prek>=0.3.2", "pysentry-rs>=0.4.1", "ruff>=0.15.0", "ty>=0.0.15"]
+
+[tool.uv]
+link-mode = "copy"
+
+[tool.ruff]
+target-version = "py313"
+line-length = 100
+extend-exclude = [".venv"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM", "ARG", "PL", "RUF"]
+extend-ignore = ["RUF001", "PLR0911", "PLR0912", "PLR0913", "PLR0915"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["spa_crawler"]
+split-on-trailing-comma = false
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = true
