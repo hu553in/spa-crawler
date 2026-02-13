@@ -1,9 +1,16 @@
 import re
-from dataclasses import dataclass
+from dataclasses import asdict, dataclass, replace
 from pathlib import Path
 
 from crawlee import ConcurrencySettings, Glob
+from rich.console import Console
 from yarl import URL
+
+
+def _pattern_or_glob_as_str(pattern_or_glob: re.Pattern | Glob) -> str:
+    if isinstance(pattern_or_glob, re.Pattern):
+        return pattern_or_glob.pattern
+    return pattern_or_glob.glob
 
 
 @dataclass(frozen=True, slots=True)
@@ -28,3 +35,24 @@ class CrawlConfig:
     additional_crawl_entrypoint_urls: list[str]
     verbose: bool
     quiet: bool
+    ignore_http_error_status_codes: list[int]
+
+    def pretty_str(self) -> str:
+        formatted = replace(
+            self,
+            base_url=str(self.base_url),
+            login="***",
+            password="***",
+            concurrency_settings={
+                "min_concurrency": self.concurrency_settings.min_concurrency,
+                "max_concurrency": self.concurrency_settings.max_concurrency,
+                "desired_concurrency": self.concurrency_settings.desired_concurrency,
+            },
+            include_links=[_pattern_or_glob_as_str(link) for link in self.include_links],
+            exclude_links=[_pattern_or_glob_as_str(link) for link in self.exclude_links],
+            out_dir=str(self.out_dir),
+        )
+        console = Console()
+        with console.capture() as capture:
+            console.print(asdict(formatted))
+        return capture.get()

@@ -2,12 +2,12 @@ SHELL := /bin/bash
 .ONESHELL:
 .SHELLFLAGS := -euo pipefail -c
 
+.PHONY: all
+all: stop clean install_deps crawl start
+
 .PHONY: ensure_env
 ensure_env:
 	if [ ! -f .env ]; then cp .env.example .env; fi
-
-.PHONY: all
-all: stop clean install_deps crawl start
 
 .PHONY: clean
 clean:
@@ -35,8 +35,8 @@ help:
 	uv run python -m spa_crawler --help
 
 .PHONY: crawl
-crawl:
-	uv run python -m spa_crawler
+crawl: ensure_env
+	uv run --env-file .env python -m spa_crawler
 
 .PHONY: start
 start: ensure_env

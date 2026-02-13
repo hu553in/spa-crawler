@@ -20,6 +20,7 @@ _DESIRED_CONCURRENCY_HELP = (
     "and less than or equal to '--max-concurrency'."
 )
 _OUT_DIR_HELP = "If changed, it must also be updated in Dockerfile, Makefile, and .gitignore."
+_IGNORE_HTTP_ERROR_STATUS_CODES_HELP = "Defaults are 400, 404, 405, and 410."
 
 
 def _strip_or_none(v: str | None) -> str | None:
@@ -168,6 +169,10 @@ def _clean_additional_crawl_entrypoint_urls(values: list[str] | None) -> list[st
     return out
 
 
+def _clean_ignore_http_error_status_codes(values: list[int] | None) -> list[int]:
+    return values or [400, 404, 405, 410]
+
+
 def main(
     base_url: Annotated[str, typer.Option(prompt="Base URL", callback=_clean_base_url)],
     login_required: Annotated[bool, typer.Option()] = True,
@@ -193,6 +198,9 @@ def main(
     additional_crawl_entrypoint_url: Annotated[list[str] | None, typer.Option()] = None,
     verbose: Annotated[bool, typer.Option()] = False,
     quiet: Annotated[bool, typer.Option()] = False,
+    ignore_http_error_status_codes: Annotated[
+        list[int] | None, typer.Option(min=400, max=599, help=_IGNORE_HTTP_ERROR_STATUS_CODES_HELP)
+    ] = None,
 ) -> None:
     login_path_s, login_s, password_s, login_input_selector_s, password_input_selector_s = (
         _clean_login_options(
@@ -236,10 +244,11 @@ def main(
         _clean_additional_crawl_entrypoint_urls(additional_crawl_entrypoint_url),
         verbose,
         quiet,
+        _clean_ignore_http_error_status_codes(ignore_http_error_status_codes),
     )
 
     if not quiet:
-        typer.echo(f"Configuration: {config}")
+        typer.echo(f"\n{config.pretty_str()}")
 
     asyncio.run(crawl(config))
 

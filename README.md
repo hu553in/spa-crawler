@@ -147,6 +147,25 @@ Recommended approach:
 - Use low concurrency
 - For authenticated crawling use concurrency = 1
 
+### Hardware tuning
+
+You can tune Crawlee memory behavior via environment variables:
+
+- `CRAWLEE_MEMORY_MBYTES`: absolute memory limit (in MB) used by Crawlee autoscaling
+- `CRAWLEE_MAX_USED_MEMORY_RATIO`: fraction of that limit that can be used before throttling
+
+Example `.env` values:
+
+```
+CRAWLEE_MEMORY_MBYTES=20000
+CRAWLEE_MAX_USED_MEMORY_RATIO=0.95
+```
+
+Tuning guidance:
+
+- lower values can reduce OOM risk on smaller machines
+- higher values can improve throughput on larger machines, but may increase RAM pressure
+
 ---
 
 ### Large number of HTTP errors in output

@@ -28,15 +28,7 @@ _OK_STATUS = 200
 _SUCCESS_RANGE = range(_OK_STATUS, 400)
 _REDIRECT_RANGE = range(300, 400)
 
-_BAD_PREFIXES = ("mailto:", "tel:", "javascript:")
-_JS_UNESCAPES = {
-    r"\u002F": "/",
-    r"\u003A": ":",
-    r"\u0026": "&",
-    r"\u003D": "=",
-    r"\u003F": "?",
-    r"\u0023": "#",
-}
+_UNICODE_ESCAPE_REGEX = re.compile(r"\\u([0-9a-fA-F]{4})")
 
 _ABSOLUTE_URL_REGEX = re.compile(r"https?://[^\s\"'<>]+")
 _PROTOCOL_RELATIVE_URL_REGEX = re.compile(r"//[^\s\"'<>]+")
@@ -45,6 +37,20 @@ _QUOTED_ABSOLUTE_PATH_REGEX = re.compile(r'["\'](/[^"\']+)["\']')
 _NEXT_DATA_JSON_REGEX = re.compile(
     r'<script[^>]*\bid=["\']__NEXT_DATA__["\'][^>]*>(.*?)</script>', re.DOTALL | re.IGNORECASE
 )
+
+_MAX_URL_LEN = 2048
+
+
+def _unescape_slashes(s: str) -> str:
+    return s.rstrip("\\").replace("\\/", "/").replace("\\\\", "\\")
+
+
+def _unescape_unicode(s: str) -> str:
+    return _UNICODE_ESCAPE_REGEX.sub(lambda m: chr(int(m.group(1), 16)), s)
+
+
+def _has_allowed_prefix(s: str | None) -> bool:
+    return bool(s and (s.startswith("http://") or s.startswith("https://") or s.startswith("/")))
 
 
 def _has_known_extension(path: str | Path) -> bool:
@@ -91,12 +97,13 @@ def _destination_for_asset(url: URL, base_url: URL, out_dir: Path) -> Path | Non
 
 def _normalize_candidate_url(raw: str, base: URL) -> str | None:
     s = (raw or "").strip().strip(" \t\r\n'\"`")
-    if not s or s.startswith("#") or s.lower().startswith(_BAD_PREFIXES):
+    if not _has_allowed_prefix(s):
         return None
 
-    s = s.rstrip("\\").replace("\\/", "/").replace("\\\\", "\\")
-    for k, v in _JS_UNESCAPES.items():
-        s = s.replace(k, v)
+    s = _unescape_unicode(_unescape_slashes(s))
+
+    if len(s) > _MAX_URL_LEN:
+        return None
 
     try:
         u = base.join(URL(s))
@@ -138,7 +145,7 @@ def _extract_urls_from_json_bytes(data: bytes, base_url: URL) -> list[str]:
     found = {
         normalized
         for s in _iter_string_values(parsed)
-        if s and (normalized := _normalize_candidate_url(s.replace("\\/", "/"), base_url))
+        if s and (normalized := _normalize_candidate_url(s, base_url))
     }
     return sorted(found)
 
@@ -162,7 +169,7 @@ def _extract_urls_from_text(text: str, base_url: URL) -> list[str]:
             _PROTOCOL_RELATIVE_URL_REGEX,
             _QUOTED_ABSOLUTE_PATH_REGEX,
         )
-        for raw in regex.findall(text.replace("\\/", "/"))
+        for raw in regex.findall(_unescape_slashes(text))
         if (normalized := _normalize_candidate_url(raw, base_url))
     }
     return sorted(found)
@@ -276,15 +283,49 @@ async def _dismiss_overlays(ctx: PlaywrightCrawlingContext) -> None:
         await ctx.page.evaluate(
             """
             () => {
-              const els = [document.documentElement, document.body];
-              for (const el of els) {
-                if (!el) continue;
-                el.style.removeProperty('overflow');
-                el.style.removeProperty('overflow-x');
-                el.style.removeProperty('overflow-y');
-                el.style.removeProperty('position');
+              const tryUnscroll = () => {
+                for (const el of [document.documentElement, document.body]) {
+                  if (!el) continue;
+                  el.style.setProperty("overflow", "auto", "important");
+                  el.style.setProperty("overflow-x", "auto", "important");
+                  el.style.setProperty("overflow-y", "auto", "important");
+                  el.style.setProperty("position", "static", "important");
+                }
+              };
+
+              const tryHideOverlays = () => {
+                document.querySelectorAll("html *").forEach((el) => {
+                  if (!(el instanceof HTMLElement)) return;
+                  const style = getComputedStyle(el);
+                  if (style.position === "fixed" && Number(style.zIndex) >= 999) {
+                    const r = el.getBoundingClientRect();
+                    if (
+                      r.width >= window.innerWidth * 0.9 &&
+                      r.height >= window.innerHeight * 0.9
+                    ) {
+                      el.style.setProperty("display", "none", "important");
+                      el.style.setProperty("pointer-events", "none", "important");
+                    }
+                  }
+                });
+              };
+
+              tryUnscroll();
+              tryHideOverlays();
+
+              if (!window.__spaCrawlerModalObserver) {
+                window.__spaCrawlerModalObserver = new MutationObserver(() => {
+                  try {
+                    tryUnscroll();
+                    tryHideOverlays();
+                  } catch {}
+                });
+                window.__spaCrawlerModalObserver.observe(document.documentElement, {
+                  childList: true,
+                  subtree: true,
+                });
               }
-            }
+            };
             """
         )
 
@@ -395,6 +436,7 @@ async def crawl(config: CrawlConfig) -> None:
         use_session_pool=True,
         max_session_rotations=0,
         retry_on_blocked=True,
+        ignore_http_error_status_codes=config.ignore_http_error_status_codes,
     )
 
     async def _discover_and_enqueue_from_html(ctx: PlaywrightCrawlingContext, html: str) -> None:
