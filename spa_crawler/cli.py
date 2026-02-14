@@ -5,6 +5,7 @@ import typer
 from crawlee import ConcurrencySettings, Glob
 from yarl import URL
 
+from spa_crawler.constants import DEFAULT_IGNORED_HTTP_ERROR_STATUS_CODES
 from spa_crawler.utils import (
     clean_absolute_http_url,
     clean_path_prefix,
@@ -12,18 +13,6 @@ from spa_crawler.utils import (
     strip_or_none,
     unique_preserve_order,
 )
-
-INCLUDE_LINKS_HELP = "{base_url}/** glob is used if no include links globs/regexes are provided."
-EXCLUDE_LINKS_HELP = (
-    ".*{login_path}.* and .*/api.* regexes are used if no exclude links globs/regexes are provided."
-)
-DESIRED_CONCURRENCY_HELP = (
-    "Must be greater than or equal to '--min-concurrency' "
-    "and less than or equal to '--max-concurrency'."
-)
-OUT_DIR_HELP = "If changed, it must also be updated in Dockerfile, Makefile, and .gitignore."
-IGNORE_HTTP_ERROR_STATUS_CODE_HELP = "Defaults are 400, 404, 405, and 410."
-API_PATH_PREFIX_HELP = "Default is '/api'."
 
 
 def _clean_with_param_hint[T](v: str, *, param_hint: str, cleaner: Callable[[str], T]) -> T:
@@ -203,7 +192,7 @@ def clean_ignore_http_error_status_codes(values: list[int] | None) -> list[int]:
     """Return deduplicated ignored HTTP status codes with project defaults."""
     if values:
         return unique_preserve_order(values)
-    return [400, 404, 405, 410]
+    return DEFAULT_IGNORED_HTTP_ERROR_STATUS_CODES
 
 
 def clean_api_path_prefixes(values: list[str] | None) -> list[str]:

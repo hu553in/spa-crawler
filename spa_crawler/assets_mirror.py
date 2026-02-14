@@ -8,6 +8,11 @@ from playwright.async_api import Request as PWRequest
 from playwright.async_api import Route
 from yarl import URL
 
+from spa_crawler.constants import (
+    HTTP_STATUS_REDIRECT_MAX_EXCLUSIVE,
+    HTTP_STATUS_REDIRECT_MIN,
+    MAX_QUERY_LEN_FOR_FS_MAPPING,
+)
 from spa_crawler.url_discovery import extract_urls_from_json_bytes, looks_like_api_path
 from spa_crawler.utils import (
     raw_query_from_url,
@@ -16,11 +21,7 @@ from spa_crawler.utils import (
     safe_relative_path_for_query,
 )
 
-_OK_STATUS = 200
-_SUCCESS_RANGE = range(_OK_STATUS, 400)
-_REDIRECT_RANGE = range(300, 400)
-
-_MAX_QUERY_LEN = 8000
+_HTTP_STATUS_SUCCESS_MIN = 200
 _ROUTE_FETCH_TIMEOUT_MS = 60_000
 
 
@@ -69,7 +70,7 @@ def _destination_for_asset(
     if raw_q:
         # Important: do not change the query string; Caddy looks up ``{query}`` verbatim.
         # If query is unsafe/unmappable, skip saving this asset entirely.
-        query_rel = safe_relative_path_for_query(raw_q, max_len=_MAX_QUERY_LEN)
+        query_rel = safe_relative_path_for_query(raw_q, max_len=MAX_QUERY_LEN_FOR_FS_MAPPING)
         if query_rel is None:
             return None
 
@@ -167,7 +168,11 @@ async def attach_route_mirror(
             response = await route.fetch(timeout=_ROUTE_FETCH_TIMEOUT_MS)
 
             # Keep redirects and non-success responses untouched.
-            if response.status in _REDIRECT_RANGE or response.status not in _SUCCESS_RANGE:
+            if response.status in range(
+                HTTP_STATUS_REDIRECT_MIN, HTTP_STATUS_REDIRECT_MAX_EXCLUSIVE
+            ) or response.status not in range(
+                _HTTP_STATUS_SUCCESS_MIN, HTTP_STATUS_REDIRECT_MAX_EXCLUSIVE
+            ):
                 await route.fulfill(response=response)
                 return
 

@@ -183,9 +183,7 @@ def canonicalize_page_url(u: URL) -> URL:
 
 
 def safe_relative_path_for_query(raw_q: str, *, max_len: int) -> Path | None:
-    """
-    Return query as relative path if it is safe for Caddy '{query}' mapping.
-    """
+    """Return query as a relative path if it is safe for Caddy ``{query}`` mapping."""
     if not _query_is_safe_for_caddy_mapping(raw_q, max_len=max_len):
         return None
     return Path(*raw_q.split("/"))

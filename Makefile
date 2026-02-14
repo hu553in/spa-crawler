@@ -53,6 +53,7 @@ restart: stop start
 lint:
 	.venv/bin/ruff format
 	.venv/bin/ruff check --fix
+	docker run --rm -it -v ./Caddyfile:/Caddyfile caddy:alpine caddy fmt --overwrite /Caddyfile
 
 .PHONY: test
 test:

@@ -5,14 +5,13 @@ from crawlee.crawlers import PlaywrightCrawlingContext, PlaywrightPreNavCrawling
 from playwright.async_api import Download
 from yarl import URL
 
+from spa_crawler.constants import MAX_QUERY_LEN_FOR_FS_MAPPING
 from spa_crawler.js_scripts import load_js
 from spa_crawler.utils import (
     raw_query_from_url,
     safe_relative_path_for_page,
     safe_relative_path_for_query,
 )
-
-_MAX_QUERY_LEN = 8000
 
 
 async def _dismiss_overlays(ctx: PlaywrightCrawlingContext) -> None:
@@ -54,7 +53,7 @@ async def save_html(ctx: PlaywrightCrawlingContext, out_dir: Path, verbose: bool
     raw_q = raw_query_from_url(loaded_url)
 
     if raw_q:
-        query_rel = safe_relative_path_for_query(raw_q, max_len=_MAX_QUERY_LEN)
+        query_rel = safe_relative_path_for_query(raw_q, max_len=MAX_QUERY_LEN_FOR_FS_MAPPING)
         if query_rel is None:
             ctx.log.warning(f"[save-skipped-unsafe-query] {url!s}")
             return

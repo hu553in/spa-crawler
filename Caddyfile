@@ -13,6 +13,8 @@ log {
 	format console
 }
 
+import /srv/redirects.caddy
+
 @next path /_next/*
 
 handle @next {
@@ -21,7 +23,7 @@ handle @next {
 
 	header Cache-Control "public, max-age=31536000, immutable"
 
-    file_server browse
+	file_server browse
 }
 
 @hasQuery expression `{query} != ""`

@@ -7,7 +7,7 @@
 - [Code of conduct](./CODE_OF_CONDUCT.md)
 
 A CLI-friendly crawler that can **optionally log in**, **crawl a website**, and **mirror pages and static assets**
-into a local directory so the result can be served by a static web server (Caddy, Nginx, etc.).
+into a local directory so the result can be served by a static web server (Caddy, etc.).
 
 The project targets modern SPAs and Next.js-style applications where content is rendered dynamically and
 traditional tools like `wget` or `curl` often fail to capture working pages.
@@ -41,12 +41,19 @@ traditional tools like `wget` or `curl` often fail to capture working pages.
   - Reads `/_next/data/**.json` payloads from intercepted responses
   - Helps discover routes referenced in JSON/JS, not only in `<a>` tags
 
+- Redirect behavior capture (hybrid)
+  - Collects HTTP redirect edges from observed 3xx chains
+  - Collects client-side redirects when loaded URL changes in browser
+  - Exports high-confidence Caddy redirect rules to `out/redirects.caddy`
+  - Creates HTML redirect pages for missing source pages as a static-hosting fallback
+
 ---
 
 ## Output structure
 
 ```
 out/
+  redirects.caddy
   pages/
     index.html
     nested_page/index.html
@@ -72,6 +79,8 @@ Typical serving layout:
 - `out/pages_q` → query HTML variants (e.g. `/search?page=2`)
 - `out/assets` → static files root (or mounted under `/`, depending on server configuration)
 - `out/assets_q` → query static variants (e.g. `/app.js?v=123`)
+- `out/redirects.caddy` → generated Caddy `redir` rules from observed redirects
+- `out/pages` and `out/pages_q` may include generated HTML redirect pages for missing sources
 
 ---
 
@@ -105,7 +114,7 @@ Then review:
 - `docker-compose.yml`
 - `Caddyfile`
 
-for real usage examples and deployment templates.
+for practical usage examples and deployment templates.
 
 ---
 
@@ -121,6 +130,9 @@ Example deployment stack included:
 - `Caddyfile`
 - environment configuration via `.env`
 
+`Caddyfile` imports `/srv/redirects.caddy`.
+`Dockerfile` creates a no-op placeholder for this file when it is absent.
+
 To use HTTP basic authentication with Caddy, generate a password hash:
 
 ```
@@ -132,6 +144,31 @@ Then set environment variables used by `Caddyfile`:
 - `ENABLE_BASIC_AUTH=true`
 - `BASIC_AUTH_USER=<username>`
 - `BASIC_AUTH_PASSWORD_HASH=<output from previous command>`
+
+### If you want a server other than Caddy
+
+The repository ships only a Caddy serving configuration.
+For any other server, you must re-implement the same URL-to-filesystem lookup behavior.
+
+What must be ported from the `Caddyfile` logic:
+
+- Page lookup without query: `/pages{path}` → `/pages{path}/index.html` → `/pages{path}.html`
+- Page lookup with query: `/pages_q{path}/{query}` → `/pages_q{path}/{query}/index.html` → `/pages_q{path}/{query}.html`
+  (with fallback to non-query pages)
+- Asset lookup without query: `/assets{path}` → `/assets{path}.*` → `/assets{path}.bin`
+- Asset lookup with query: `/assets_q{path}/{query}` (with fallback to non-query assets)
+- Header policy: immutable cache for `/_next/*`, no-cache for mirrored HTML pages
+
+Redirect support must also be ported:
+
+- Current export is Caddy-specific (`out/redirects.caddy` with `redir` directives)
+- For another server, add a converter step (from observed redirects to that server syntax)
+  or implement a new Python exporter
+- HTML redirect pages in `out/pages` and `out/pages_q` are server-agnostic fallbacks and should still work
+  if lookup is ported correctly
+
+For Nginx specifically, reproducing query-based lookup (`{query}` in the filesystem path) and fallback chains
+usually requires `njs` or careful `map` + `try_files` composition.
 
 ---
 
@@ -160,7 +197,7 @@ At high concurrency levels the crawler may:
 Recommended approach:
 
 - Use low concurrency
-- For authenticated crawling use concurrency = 1
+- For authenticated crawling, use concurrency = 1
 
 ### Hardware tuning
 
@@ -226,6 +263,18 @@ However, if a route is only accessible via complex client logic or hidden intera
 it may never be discovered automatically.
 
 Manual entrypoints may be required.
+
+---
+
+### Redirect export is observational
+
+`out/redirects.caddy` and generated HTML redirect pages are based only on redirects observed during crawl.
+
+This means:
+
+- paths never visited during crawl will not have redirect rules
+- ambiguous source URLs may be ignored if confidence is below threshold
+- export keeps only one best target per source URL
 
 ---
 

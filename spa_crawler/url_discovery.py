@@ -23,7 +23,7 @@ type RequestTransformAction = Literal["skip", "unchanged"]
 
 
 def _has_known_extension(path: str | Path) -> bool:
-    """Return True if path has a recognized file extension (based on mimetypes)."""
+    """Return ``True`` if the path has a recognized file extension."""
     p = Path(path)
     return bool(p.suffix and mimetypes.guess_type(p.name, strict=False)[0])
 
@@ -193,5 +193,5 @@ def transform_enqueue_request(
 
 
 def looks_like_api_path(path: str, api_path_prefixes: Sequence[str]) -> bool:
-    """Return True if the path matches any configured API prefix."""
+    """Return ``True`` if the path matches any configured API prefix."""
     return any(prefix and path_has_prefix(path, prefix) for prefix in api_path_prefixes)

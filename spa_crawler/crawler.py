@@ -1,3 +1,4 @@
+import logging
 from collections.abc import Awaitable, Callable
 from datetime import timedelta
 
@@ -22,6 +23,7 @@ from spa_crawler.page_ops import (
     soft_interaction_pass,
     wait_for_stable_page,
 )
+from spa_crawler.redirects import RedirectCollector
 from spa_crawler.url_discovery import extract_page_urls_via_js, transform_enqueue_request
 from spa_crawler.utils import canonicalize_page_url, path_has_prefix, unique_preserve_order
 
@@ -32,6 +34,7 @@ async def crawl(config: CrawlConfig) -> None:
         raise ValueError("login_path '/' is not supported when login_required is true.")
 
     verbose = setup_logging(verbose=config.verbose, quiet=config.quiet)
+    redirect_collector = RedirectCollector(config.base_url, config.api_path_prefixes)
 
     crawler = PlaywrightCrawler(
         http_client=ImpitHttpClient(),
@@ -66,6 +69,17 @@ async def crawl(config: CrawlConfig) -> None:
             if verbose:
                 ctx.log.info(f"[{tag}] {ctx.request.url}")
             await fn()
+
+            try:
+                await redirect_collector.observe_http_redirects_from_response(ctx.response)
+            except Exception as e:
+                ctx.log.warning(f"[redirect-http-observe-error] {ctx.request.url}: {e!r}")
+
+            try:
+                source = ctx.request.loaded_url or ctx.request.url
+                redirect_collector.observe_client_redirect(source, ctx.page.url)
+            except Exception as e:
+                ctx.log.warning(f"[redirect-client-observe-error] {ctx.request.url}: {e!r}")
         finally:
             await close_page(ctx)
 
@@ -174,3 +188,24 @@ async def crawl(config: CrawlConfig) -> None:
         entrypoints = post_login_entrypoints
 
     await crawler.run(entrypoints)
+
+    logger = logging.getLogger(__name__)
+
+    try:
+        caddy_path = redirect_collector.write_server_redirect_rules(config.out_dir)
+        if verbose:
+            logger.info(f"[redirect-rules] caddy={caddy_path}")
+    except Exception as e:
+        logger.warning(f"[redirect-rules-save-error] {e!r}")
+
+    try:
+        html_stats = redirect_collector.write_html_redirect_pages(config.out_dir)
+        if verbose:
+            logger.info(
+                "[redirect-pages] "
+                f"created={html_stats['created']} "
+                f"skipped_existing={html_stats['skipped_existing']} "
+                f"skipped_unsafe_query={html_stats['skipped_unsafe_query']}"
+            )
+    except Exception as e:
+        logger.warning(f"[redirect-pages-save-error] {e!r}")
