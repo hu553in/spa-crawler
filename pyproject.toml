@@ -5,19 +5,23 @@ description = "A small CLI-friendly crawler that optionally logs in, crawls a we
 requires-python = ">=3.13,<4.0"
 readme = "README.md"
 
-dependencies = [
-    "beautifulsoup4>=4.14.3",
-    "crawlee[playwright]",
-    "lxml>=6.0.2",
-    "typer>=0.23.0",
-    "yarl>=1.22.0",
-]
+dependencies = ["crawlee[playwright]", "typer>=0.23.1", "yarl>=1.22.0"]
 
 [dependency-groups]
-dev = ["prek>=0.3.2", "pysentry-rs>=0.4.1", "ruff>=0.15.0", "ty>=0.0.15"]
+dev = [
+    "prek>=0.3.2",
+    "pysentry-rs>=0.4.1",
+    "pytest>=9.0.2",
+    "pytest-cov>=7.0.0",
+    "ruff>=0.15.1",
+    "ty>=0.0.17",
+]
 
 [tool.uv]
 link-mode = "copy"
+
+[tool.pytest.ini_options]
+addopts = "--cov=spa_crawler --cov-report=term-missing --cov-fail-under=95"
 
 [tool.ruff]
 target-version = "py313"

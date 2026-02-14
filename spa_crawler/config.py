@@ -8,6 +8,7 @@ from yarl import URL
 
 
 def _pattern_or_glob_as_str(pattern_or_glob: re.Pattern | Glob) -> str:
+    """Render a regex/glob matcher as a human-readable string."""
     if isinstance(pattern_or_glob, re.Pattern):
         return pattern_or_glob.pattern
     return pattern_or_glob.glob
@@ -15,6 +16,8 @@ def _pattern_or_glob_as_str(pattern_or_glob: re.Pattern | Glob) -> str:
 
 @dataclass(frozen=True, slots=True)
 class CrawlConfig:
+    """Runtime crawler configuration normalized from CLI input."""
+
     base_url: URL
     login_required: bool
     login_path: str
@@ -36,8 +39,10 @@ class CrawlConfig:
     verbose: bool
     quiet: bool
     ignore_http_error_status_codes: list[int]
+    api_path_prefixes: list[str]
 
     def pretty_str(self) -> str:
+        """Render config for console output with sensitive values masked."""
         formatted = replace(
             self,
             base_url=str(self.base_url),

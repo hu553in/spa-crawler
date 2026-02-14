@@ -2,8 +2,8 @@
 
 @authEnabled expression `{env.ENABLE_BASIC_AUTH} == "true"`
 
-basicauth @authEnabled {
-    {$BASIC_AUTH_USER} {$BASIC_AUTH_PASSWORD_HASH}
+basic_auth @authEnabled {
+	{$BASIC_AUTH_USER} {$BASIC_AUTH_PASSWORD_HASH}
 }
 
 encode zstd gzip
@@ -16,25 +16,36 @@ log {
 @next path /_next/*
 
 handle @next {
-	root * /srv/assets
+	root * /srv
+	try_files /assets_q{path}/{query} /assets{path} /assets{path}.* /assets{path}.bin
+
 	header Cache-Control "public, max-age=31536000, immutable"
-	file_server browse
+
+    file_server browse
 }
 
-@asset file {
-	root /srv/assets
-}
+@hasQuery expression `{query} != ""`
 
-handle @asset {
-	root * /srv/assets
-	header Cache-Control "public, max-age=604800"
+handle @hasQuery {
+	root * /srv
+	try_files /pages_q{path}/{query} /pages_q{path}/{query}/index.html /pages_q{path}/{query}.html /pages{path} /pages{path}/index.html /pages{path}.html /assets_q{path}/{query} /assets{path} /assets{path}.* /assets{path}.bin
+
+	@pageWithQuery file {
+		try_files /pages_q{path}/{query} /pages_q{path}/{query}/index.html /pages_q{path}/{query}.html /pages{path} /pages{path}/index.html /pages{path}.html
+	}
+	header @pageWithQuery Cache-Control "no-cache"
+
 	file_server browse
 }
 
 handle {
-	root * /srv/pages
-	try_files {path} {path}/index.html {path}.html
-	@html path *.html
-	header @html Cache-Control "no-cache"
+	root * /srv
+	try_files /pages{path} /pages{path}/index.html /pages{path}.html /assets{path} /assets{path}.* /assets{path}.bin
+
+	@page file {
+		try_files /pages{path} /pages{path}/index.html /pages{path}.html
+	}
+	header @page Cache-Control "no-cache"
+
 	file_server browse
 }

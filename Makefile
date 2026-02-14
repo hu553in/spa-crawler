@@ -54,6 +54,10 @@ lint:
 	.venv/bin/ruff format
 	.venv/bin/ruff check --fix
 
+.PHONY: test
+test:
+	.venv/bin/pytest
+
 .PHONY: check_types
 check_types:
 	.venv/bin/ty check .

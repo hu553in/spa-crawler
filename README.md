@@ -1,11 +1,13 @@
 # SPA crawler
 
+[![CI](https://github.com/hu553in/spa-crawler/actions/workflows/ci.yml/badge.svg)](https://github.com/hu553in/spa-crawler/actions/workflows/ci.yml)
+
 - [License](./LICENSE)
 - [How to contribute](./CONTRIBUTING.md)
 - [Code of conduct](./CODE_OF_CONDUCT.md)
 
-A CLI-friendly crawler that can **optionally log in**, **crawl a website**, and **mirror pages + many static assets**
-into a local directory so the result can be served using a static web server (Caddy, Nginx, etc).
+A CLI-friendly crawler that can **optionally log in**, **crawl a website**, and **mirror pages and static assets**
+into a local directory so the result can be served by a static web server (Caddy, Nginx, etc.).
 
 The project targets modern SPAs and Next.js-style applications where content is rendered dynamically and
 traditional tools like `wget` or `curl` often fail to capture working pages.
@@ -28,17 +30,16 @@ traditional tools like `wget` or `curl` often fail to capture working pages.
 
 - Mirrors many static assets
   - Examples: `/_next/**`, `*.css`, `*.js`, images, fonts, etc.
-  - Saved to `out/assets/**`
+  - Saved to `out/assets/**` and `out/assets_q/**`
 
 - Single browser session / session pool
   - Designed to improve reliability for authenticated crawling
 
 - Additional URL discovery
-  - Extracts routes from rendered HTML
-  - Parses escaped paths such as `\/some\/route`
-  - Parses Next.js `__NEXT_DATA__`
-  - Parses `/_next/data/**.json` payloads
-  - Helps discover routes referenced via JSON or JS instead of `<a>` tags
+  - Extracts candidate links from rendered DOM
+  - Reads Next.js `__NEXT_DATA__` from the page
+  - Reads `/_next/data/**.json` payloads from intercepted responses
+  - Helps discover routes referenced in JSON/JS, not only in `<a>` tags
 
 ---
 
@@ -50,17 +51,27 @@ out/
     index.html
     nested_page/index.html
     ...
+  pages_q/
+    search/
+      page=2/index.html
+    ...
   assets/
     _next/static/...
     logo.svg
     favicon.ico
+    ...
+  assets_q/
+    _next/static/chunk.js/
+      v=123
     ...
 ```
 
 Typical serving layout:
 
 - `out/pages` → HTML root
+- `out/pages_q` → query HTML variants (e.g. `/search?page=2`)
 - `out/assets` → static files root (or mounted under `/`, depending on server configuration)
+- `out/assets_q` → query static variants (e.g. `/app.js?v=123`)
 
 ---
 
@@ -116,7 +127,11 @@ To use HTTP basic authentication with Caddy, generate a password hash:
 caddy hash-password
 ```
 
-Then place the generated hash into your environment variables or Caddy configuration.
+Then set environment variables used by `Caddyfile`:
+
+- `ENABLE_BASIC_AUTH=true`
+- `BASIC_AUTH_USER=<username>`
+- `BASIC_AUTH_PASSWORD_HASH=<output from previous command>`
 
 ---
 
@@ -193,6 +208,7 @@ Some resources may be skipped due to:
 - authentication-protected resources
 - browser caching behavior
 - implementation complexity
+- unsafe or ambiguous query strings for static-server mapping
 
 The mirrored site may occasionally require manual fixes.
 
@@ -203,8 +219,8 @@ The mirrored site may occasionally require manual fixes.
 The crawler attempts to discover routes using:
 
 - DOM extraction
-- Regex parsing
-- Next.js JSON parsing
+- `__NEXT_DATA__` parsing
+- `/_next/data/**.json` parsing
 
 However, if a route is only accessible via complex client logic or hidden interactions,
 it may never be discovered automatically.
@@ -213,7 +229,7 @@ Manual entrypoints may be required.
 
 ---
 
-### Stability vs completeness tradeoff
+### Stability vs. completeness tradeoff
 
 The project intentionally favors:
 
@@ -228,7 +244,7 @@ over:
 
 ---
 
-## Tips / Troubleshooting
+## Tips / troubleshooting
 
 ### SPA login inputs reset while typing
 
@@ -248,9 +264,9 @@ Common causes:
 
 Possible fixes:
 
-- increase crawling coverage
-- manually add entrypoints
-- extend URL extraction logic
+- add include globs/regexes
+- add manual entrypoints via `--additional-crawl-entrypoint-url`
+- extend URL extraction logic for project-specific patterns
 
 ---
 
@@ -291,7 +307,7 @@ It is **not** intended as a universal or production-grade website archiving solu
 
 ---
 
-## Ethics & legality
+## Ethics and legality
 
 Only crawl content you are authorized to access and store.
 

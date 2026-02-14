@@ -2,8 +2,7 @@
 
 FROM caddy:alpine
 
-COPY out/pages /srv/pages
-COPY out/assets /srv/assets
+COPY out /srv
 
 COPY Caddyfile /etc/caddy/Caddyfile
 

@@ -59,6 +59,13 @@ repos:
         args: [-ll]
   - repo: local
     hooks:
+      - id: test
+        name: test
+        entry: make test
+        language: system
+        always_run: true
+        pass_filenames: false
+        stages: [pre-commit]
       - id: check-types
         name: check types
         entry: make check_types
