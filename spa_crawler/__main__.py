@@ -213,7 +213,11 @@ def main(
         int, typer.Option(min=1, clamp=True, help="Maximum allowed URL length.")
     ] = 2048,
     candidate_url_trim_chars: Annotated[
-        str, typer.Option(help="Characters to trim from candidate URLs before processing.")
+        str,
+        typer.Option(
+            help="Characters to trim from candidate URLs before processing.",
+            show_default=" \\t\\r\\n'\"`",
+        ),
     ] = " \t\r\n'\"`",
 ) -> None:
     """Parse CLI options, build ``CrawlConfig``, and run the crawler."""
