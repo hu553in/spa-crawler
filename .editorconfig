@@ -1,4 +1,4 @@
-root = true
+oot = true
 
 [*]
 end_of_line = lf
@@ -11,5 +11,5 @@ indent_size = 4
 [Makefile]
 indent_style = tab
 
-[{*.y*ml,*.json,*.xml}]
+[{*.y*ml,*.json,*.toml,*.xml}]
 indent_size = 2
