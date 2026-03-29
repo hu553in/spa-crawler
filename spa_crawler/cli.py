@@ -1,5 +1,6 @@
 import re
 from collections.abc import Callable
+from pathlib import Path
 from typing import cast
 
 import typer
@@ -218,6 +219,28 @@ def clean_api_path_prefixes(values: list[str] | None) -> list[str]:
         ),
     )
     return unique_preserve_order(out) or []
+
+
+def is_containerized() -> bool:
+    """Best-effort detection of common container runtimes."""
+    if Path("/.dockerenv").exists() or Path("/run/.containerenv").exists():
+        return True
+
+    try:
+        cgroup = Path("/proc/1/cgroup").read_text()
+    except OSError:
+        return False
+
+    return any(token in cgroup for token in ("docker", "containerd", "kubepods"))
+
+
+def validate_runtime_mode(*, headless: bool) -> None:
+    """Reject runtime modes that are unsupported in the current environment."""
+    if is_containerized() and not headless:
+        raise typer.BadParameter(
+            "headful mode is not supported in containers; use '--headless' or run outside Docker.",
+            param_hint=["--headless"],
+        )
 
 
 def is_cli_param_error(e: BaseException) -> bool:

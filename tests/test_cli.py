@@ -167,6 +167,29 @@ def test_clean_api_path_prefixes_bad_value() -> None:
     assert e.value.param_hint and "--api-path-prefix" in e.value.param_hint
 
 
+def test_is_containerized_detects_marker_files(monkeypatch: pytest.MonkeyPatch) -> None:
+    marker_paths = {"/.dockerenv"}
+
+    monkeypatch.setattr(cli.Path, "exists", lambda self: str(self) in marker_paths)
+    assert cli.is_containerized() is True
+
+
+def test_validate_runtime_mode_rejects_headful_in_container(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setattr(cli, "is_containerized", lambda: True)
+    with pytest.raises(typer.BadParameter) as e:
+        cli.validate_runtime_mode(headless=False)
+    assert e.value.param_hint and "--headless" in e.value.param_hint
+
+
+def test_validate_runtime_mode_allows_headless_in_container(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setattr(cli, "is_containerized", lambda: True)
+    cli.validate_runtime_mode(headless=True)
+
+
 def test_is_cli_param_error() -> None:
     assert cli.is_cli_param_error(typer.BadParameter("x"))
     assert not cli.is_cli_param_error(RuntimeError("x"))

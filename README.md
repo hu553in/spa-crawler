@@ -112,16 +112,69 @@ make help
 Then review these files for practical usage examples and deployment templates:
 
 - `Makefile`
-- `Dockerfile`
-- `docker-compose.yml`
+- `Dockerfile.spa-crawler`
+- `Dockerfile.spa`
+- `docker-compose.spa.yml`
 - `Caddyfile`
+
+### Published crawler image
+
+On every push to `main`, GitHub Actions publishes the crawler image to GHCR:
+
+- `ghcr.io/hu553in/spa-crawler:latest`
+- `ghcr.io/hu553in/spa-crawler:sha-<commit>`
+
+Build source:
+
+- `Dockerfile.spa-crawler`
+
+The image expects crawler arguments at runtime. In practice you usually want to mount `out/`
+so mirrored files remain on the host after the container exits.
+
+Minimal example:
+
+```bash
+docker run --rm \
+  -v "$(pwd)/out:/app/out" \
+  ghcr.io/hu553in/spa-crawler:latest \
+  --base-url https://example.com \
+  --no-login-required
+```
+
+Authenticated example:
+
+```bash
+docker run --rm \
+  -v "$(pwd)/out:/app/out" \
+  -e SPA_CRAWLER_LOGIN="$SPA_CRAWLER_LOGIN" \
+  -e SPA_CRAWLER_PASSWORD="$SPA_CRAWLER_PASSWORD" \
+  -e CRAWLEE_MEMORY_MBYTES=20000 \
+  -e CRAWLEE_MAX_USED_MEMORY_RATIO=0.95 \
+  ghcr.io/hu553in/spa-crawler:latest \
+  --base-url https://example.com \
+  --login-required \
+  --login-path /login \
+  --login-input-selector "input[name='login']:visible" \
+  --password-input-selector "input[name='password']:visible"
+```
+
+Notes:
+
+- `SPA_CRAWLER_LOGIN` and `SPA_CRAWLER_PASSWORD` are read from the environment.
+- `--base-url` still has to be passed explicitly; otherwise Typer prompts for it.
+- The published Docker image supports only headless mode. `--no-headless`
+  is rejected in containers.
+- Mounting `/app/out` is strongly recommended. Without it, crawl output stays only
+  inside the container filesystem.
+- `/app/storage` is declared as a volume for Crawlee runtime state. Mount it too
+  if you want to inspect or persist that state across runs.
 
 ---
 
 ## CLI filtering defaults
 
 - Include links: `{base_url}/**` when no include filters are provided
-- Exclude links: login regex only (`.*{login_path}.*`) when `--login-required` is `true`
+- Exclude links: login regex only (`.*{login_path}.*`) when `--login-required` is set
 - API path prefixes: empty by default; add `--api-path-prefix` values if you want API routes excluded
   from page discovery, asset mirroring, and redirect collection
 
@@ -134,13 +187,13 @@ You are responsible for deciding how and where to deploy or serve it.
 
 Example deployment stack included:
 
-- `Dockerfile`
-- `docker-compose.yml`
+- `Dockerfile.spa`
+- `docker-compose.spa.yml`
 - `Caddyfile`
 - Environment configuration via `.env`
 
 `Caddyfile` imports `/srv/redirects.caddy`.
-`Dockerfile` creates a no-op placeholder for this file when it is absent.
+`Dockerfile.spa` creates a no-op placeholder for this file when it is absent.
 `Caddyfile` also normalizes non-`GET`/`HEAD` methods by redirecting them to `GET` with `303` on the same URI
 (to avoid `405 Method Not Allowed` errors on static mirrors).
 

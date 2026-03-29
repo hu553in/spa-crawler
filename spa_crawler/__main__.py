@@ -16,6 +16,7 @@ from spa_crawler.cli import (
     clean_login_options,
     clean_max_confidence_for_not_export,
     is_cli_param_error,
+    validate_runtime_mode,
 )
 from spa_crawler.config import CrawlConfig
 from spa_crawler.constants import DEFAULT_IGNORED_HTTP_ERROR_STATUS_CODES
@@ -228,6 +229,8 @@ def main(
         include_links_glob,
         exclude_links_glob,
     )
+
+    validate_runtime_mode(headless=headless)
 
     config = CrawlConfig(
         URL(base_url),

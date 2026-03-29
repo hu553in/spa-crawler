@@ -1,0 +1,31 @@
+# syntax=docker/dockerfile:1
+
+FROM ghcr.io/astral-sh/uv:python3.13-bookworm-slim AS deps
+WORKDIR /app
+
+ENV UV_PROJECT_ENVIRONMENT=/app/.venv \
+    UV_CACHE_DIR=/root/.cache/uv \
+    PLAYWRIGHT_BROWSERS_PATH=/ms-playwright
+
+COPY pyproject.toml uv.lock ./
+RUN --mount=type=cache,target=/root/.cache/uv \
+    uv sync --frozen --no-dev \
+    && uv run playwright install --with-deps --only-shell chromium
+
+FROM ghcr.io/astral-sh/uv:python3.13-bookworm-slim AS runner
+WORKDIR /app
+
+ENV PYTHONUNBUFFERED=1 \
+    UV_PROJECT_ENVIRONMENT=/app/.venv \
+    PLAYWRIGHT_BROWSERS_PATH=/ms-playwright
+
+RUN useradd -m app
+
+COPY --from=deps --chown=app:app /app/.venv ./.venv
+COPY --from=deps --chown=app:app /ms-playwright /ms-playwright
+COPY --chown=app:app pyproject.toml uv.lock ./
+COPY --chown=app:app spa_crawler ./spa_crawler
+
+USER app
+VOLUME ["/app/out", "/app/storage"]
+ENTRYPOINT ["uv", "run", "python", "-m", "spa_crawler"]

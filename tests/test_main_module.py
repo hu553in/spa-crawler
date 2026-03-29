@@ -1,3 +1,4 @@
+import pytest
 import typer
 from yarl import URL
 
@@ -33,6 +34,22 @@ def test_main_quiet_does_not_print(monkeypatch, capsys) -> None:
     monkeypatch.setattr(main_mod, "crawl", fake_crawl)
     main_mod.main(base_url="https://example.com", login_required=False, quiet=True)
     assert capsys.readouterr().out == ""
+
+
+def test_main_rejects_headful_mode_in_container(monkeypatch) -> None:
+    monkeypatch.setattr(main_mod, "crawl", lambda *_args, **_kwargs: None)
+    monkeypatch.setattr(
+        main_mod,
+        "validate_runtime_mode",
+        lambda *, headless: (
+            (_ for _ in ()).throw(typer.BadParameter("x", param_hint=["--headless"]))
+            if not headless
+            else None
+        ),
+    )
+
+    with pytest.raises(typer.BadParameter):
+        main_mod.main(base_url="https://example.com", login_required=False, headless=False)
 
 
 def test_main_param_error_passthrough() -> None:

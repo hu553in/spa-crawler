@@ -3,7 +3,7 @@ SHELL := /bin/bash
 .SHELLFLAGS := -euo pipefail -c
 
 .PHONY: all
-all: stop clean install_deps crawl start
+all: stop_spa clean install_deps crawl start_spa
 
 .PHONY: ensure_env
 ensure_env:
@@ -38,16 +38,16 @@ help:
 crawl: ensure_env
 	uv run --env-file .env python -m spa_crawler
 
-.PHONY: start
-start: ensure_env
-	docker compose up -d --build
+.PHONY: start_spa
+start_spa: ensure_env
+	docker compose -f docker-compose.spa.yml up -d --build
 
-.PHONY: stop
-stop: ensure_env
-	docker compose down
+.PHONY: stop_spa
+stop_spa: ensure_env
+	docker compose -f docker-compose.spa.yml down
 
-.PHONY: restart
-restart: stop start
+.PHONY: restart_spa
+restart_spa: stop_spa start_spa
 
 .PHONY: lint
 lint:
