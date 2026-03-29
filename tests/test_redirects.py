@@ -13,13 +13,13 @@ from spa_crawler.redirects import (
 
 
 class _StatusResponse:
-    def __init__(self, status: int) -> None:
+    def __init__(self, status: object) -> None:
         self.status = status
 
 
 class _NavRequest:
     def __init__(
-        self, url: str, *, status: int | None, redirected_from: "_NavRequest | None" = None
+        self, url: str, *, status: object | None, redirected_from: "_NavRequest | None" = None
     ) -> None:
         self.url = url
         self.redirected_from = redirected_from
@@ -172,7 +172,7 @@ def test_observe_http_redirects_ignores_invalid_shapes(tmp_path: Path) -> None:
     asyncio.run(collector.observe_http_redirects_from_response(_NavResponse(dst_bad_status)))
 
     # Source status type is invalid.
-    src_weird_status = _NavRequest("https://example.com/c", status="302")  # type: ignore[arg-type]
+    src_weird_status = _NavRequest("https://example.com/c", status="302")
     dst_weird_status = _NavRequest(
         "https://example.com/d", status=200, redirected_from=src_weird_status
     )

@@ -1,5 +1,6 @@
 import contextlib
 from pathlib import Path
+from weakref import WeakSet
 
 from crawlee.crawlers import PlaywrightCrawlingContext, PlaywrightPreNavCrawlingContext
 from playwright.async_api import Download
@@ -11,6 +12,8 @@ from spa_crawler.utils import (
     safe_relative_path_for_page,
     safe_relative_path_for_query,
 )
+
+_ATTACHED_DOWNLOAD_HOOK_PAGES: WeakSet[object] = WeakSet()
 
 
 async def _dismiss_overlays(ctx: PlaywrightCrawlingContext) -> None:
@@ -33,9 +36,9 @@ def maybe_attach_download_hook(
 ) -> None:
     """Log downloads triggered by the page (useful for debugging)."""
     with contextlib.suppress(Exception):
-        if getattr(ctx.page, "_download_hook_attached", False):
+        if ctx.page in _ATTACHED_DOWNLOAD_HOOK_PAGES:
             return
-        ctx.page._download_hook_attached = True  # type: ignore[attr-defined]
+        _ATTACHED_DOWNLOAD_HOOK_PAGES.add(ctx.page)
 
         def _on_download(download: Download) -> None:
             if verbose:

@@ -1,6 +1,6 @@
 import asyncio
 import json
-from collections.abc import Awaitable
+from collections.abc import Callable, Coroutine
 from pathlib import Path
 from typing import Any, cast
 
@@ -8,6 +8,8 @@ import pytest
 from yarl import URL
 
 from spa_crawler import assets_mirror
+
+type _RouteHandler = Callable[["_Route", "_Req"], Coroutine[Any, Any, None]]
 
 
 class _Req:
@@ -62,9 +64,9 @@ class _Log:
 
 class _Page:
     def __init__(self) -> None:
-        self.route_handler: Awaitable[Any] | None = None
+        self.route_handler: _RouteHandler | None = None
 
-    async def route(self, _pattern: str, handler) -> None:
+    async def route(self, _pattern: str, handler: _RouteHandler) -> None:
         self.route_handler = handler
 
 
@@ -218,7 +220,7 @@ def test_attach_route_mirror_document_and_api_paths(tmp_path: Path) -> None:
             candidate_url_trim_chars=" \t\r\n'\"`",
         )
     )
-    assert callable(ctx.page.route_handler)
+    assert ctx.page.route_handler is not None
 
     # Re-attaching should do nothing.
     route_handler_before = ctx.page.route_handler
@@ -236,6 +238,7 @@ def test_attach_route_mirror_document_and_api_paths(tmp_path: Path) -> None:
         )
     )
     assert ctx.page.route_handler is route_handler_before
+    assert ctx.page.route_handler is not None
 
     # HTML document requests are fulfilled and skipped from asset mirroring.
     r1 = _Route(_Resp(200, b"<html></html>", {"content-type": "text/html"}))
@@ -280,7 +283,7 @@ def test_attach_route_mirror_redirect_and_success_and_error(tmp_path: Path) -> N
         )
     )
     handler = ctx.page.route_handler
-    assert callable(handler)
+    assert handler is not None
 
     # Redirect response: fulfill without writes.
     redirect_resp = _Resp(302, b"", {})
@@ -322,7 +325,7 @@ def test_attach_route_mirror_warnings_without_verbose(
         )
     )
     handler = ctx.page.route_handler
-    assert callable(handler)
+    assert handler is not None
 
     monkeypatch.setattr(assets_mirror, "_write_asset_overwrite", lambda *_a, **_k: False)
     ok_resp = _Resp(200, b"abc", {"content-type": "application/javascript"})
@@ -351,7 +354,7 @@ def test_attach_route_mirror_dedups_same_url_per_run(tmp_path: Path) -> None:
         )
     )
     handler = ctx.page.route_handler
-    assert callable(handler)
+    assert handler is not None
 
     first = _Route(_Resp(200, b"abc", {"content-type": "application/javascript"}))
     asyncio.run(handler(first, _Req("https://example.com/a.js", "script")))

@@ -4,6 +4,7 @@ from collections.abc import Sequence
 from email.message import Message
 from http.client import BAD_REQUEST, MULTIPLE_CHOICES, OK
 from pathlib import Path
+from weakref import WeakSet
 
 from crawlee.crawlers import PlaywrightCrawlingContext, PlaywrightPreNavCrawlingContext
 from playwright.async_api import Request as PWRequest
@@ -17,6 +18,8 @@ from spa_crawler.utils import (
     safe_relative_path_for_page,
     safe_relative_path_for_query,
 )
+
+_ATTACHED_ROUTE_MIRROR_PAGES: WeakSet[object] = WeakSet()
 
 
 def _media_type_from_content_type(content_type: str | None) -> str | None:
@@ -132,9 +135,9 @@ async def attach_route_mirror(
     mirroring is decided by response ``Content-Type``: HTML documents are skipped,
     non-HTML payloads are mirrored.
     """
-    if getattr(ctx.page, "_route_mirror_attached", False):
+    if ctx.page in _ATTACHED_ROUTE_MIRROR_PAGES:
         return
-    ctx.page._route_mirror_attached = True  # type: ignore[attr-defined]
+    _ATTACHED_ROUTE_MIRROR_PAGES.add(ctx.page)
     mirrored_urls: set[str] = set()
     inflight_urls: set[str] = set()
 
