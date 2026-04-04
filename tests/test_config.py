@@ -20,7 +20,7 @@ def test_crawl_config_pretty_str_masks_secrets() -> None:
         login_required=True,
         login_path="/login",
         login="user",
-        password="pass",
+        password="pass",  # nosec B106
         login_input_selector="#u",
         password_input_selector="#p",
         headless=True,

@@ -2,7 +2,7 @@
 name = "spa-crawler"
 version = "0.0.1"
 description = "A CLI-friendly crawler that can optionally log in, crawl a website, and mirror pages and static assets into a local directory so the result can be served by a static web server (Caddy, etc.)"
-requires-python = ">=3.13,<4.0"
+requires-python = ">=3.14"
 readme = "README.md"
 
 dependencies = ["crawlee[playwright]", "typer>=0.24.1", "yarl>=1.23.0"]
@@ -13,8 +13,8 @@ dev = [
   "pysentry-rs>=0.4.3",
   "pytest>=9.0.2",
   "pytest-cov>=7.1.0",
-  "ruff>=0.15.8",
-  "ty>=0.0.26",
+  "ruff>=0.15.9",
+  "ty>=0.0.28",
 ]
 
 [tool.uv]
@@ -40,3 +40,12 @@ split-on-trailing-comma = false
 quote-style = "double"
 indent-style = "space"
 skip-magic-trailing-comma = true
+
+[tool.pysentry.defaults]
+fail_on = "low"
+
+[tool.pysentry.sources]
+enabled = ["pypa", "pypi", "osv"]
+
+[tool.bandit.assert_used]
+skips = ["*_test.py", "*test_*.py"]

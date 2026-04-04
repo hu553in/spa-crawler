@@ -54,7 +54,7 @@ class CrawlConfig:
             self,
             base_url=str(self.base_url),
             login="***",
-            password="***",
+            password="***",  # nosec B106
             concurrency_settings={
                 "min_concurrency": self.concurrency_settings.min_concurrency,
                 "max_concurrency": self.concurrency_settings.max_concurrency,

@@ -43,7 +43,7 @@ def main(
     login: Annotated[str, typer.Option(envvar="SPA_CRAWLER_LOGIN", help="Login username.")] = "",
     password: Annotated[
         str, typer.Option(envvar="SPA_CRAWLER_PASSWORD", help="Login password.")
-    ] = "",
+    ] = "",  # nosec B107
     login_input_selector: Annotated[
         str, typer.Option(help="CSS selector for the login input field.")
     ] = "input[name='login']:visible",

@@ -1,4 +1,0 @@
-version = 1
-
-[ignore]
-while_no_fix = ["GHSA-5239-wwwm-4pmq"]

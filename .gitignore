@@ -1,11 +1,8 @@
-__pycache__
-.venv
-
-storage
-out
-
+.venv/
+__pycache__/
+storage/
+out/
 .DS_Store
-
 .env
-
 .coverage
+.coverage.*

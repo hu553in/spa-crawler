@@ -2,21 +2,13 @@ SHELL := /bin/bash
 .ONESHELL:
 .SHELLFLAGS := -euo pipefail -c
 
-.PHONY: all
-all: stop_spa clean install_deps crawl start_spa
-
 .PHONY: ensure_env
 ensure_env:
 	if [ ! -f .env ]; then cp .env.example .env; fi
 
-.PHONY: clean
-clean:
-	rm -rf storage
-	rm -rf out
-
 .PHONY: install_deps
 install_deps:
-	uv sync
+	uv sync --frozen --no-install-project
 
 .PHONY: sync_deps
 sync_deps:
@@ -28,7 +20,26 @@ check_deps_updates:
 
 .PHONY: check_deps_vuln
 check_deps_vuln:
-	uv run pysentry-rs --sources pypa,pypi,osv --fail-on low .
+	uv run pysentry-rs .
+
+.PHONY: lint
+lint:
+	uv run ruff format
+	uv run ruff check --fix
+
+.PHONY: test
+test:
+	uv run pytest
+
+.PHONY: check_types
+check_types:
+	uv run ty check .
+
+.PHONY: check
+check:
+	uv run prek --all-files --hook-stage pre-commit
+
+# Project-specific
 
 .PHONY: help
 help:
@@ -49,20 +60,10 @@ stop_spa: ensure_env
 .PHONY: restart_spa
 restart_spa: stop_spa start_spa
 
-.PHONY: lint
-lint:
-	uv run ruff format
-	uv run ruff check --fix
-	docker run --rm -it -v ./Caddyfile:/Caddyfile caddy:alpine caddy fmt --overwrite /Caddyfile
+.PHONY: all
+all: stop_spa clean install_deps crawl start_spa
 
-.PHONY: test
-test:
-	uv run pytest
-
-.PHONY: check_types
-check_types:
-	uv run ty check .
-
-.PHONY: check
-check:
-	uv run prek --all-files --hook-stage pre-commit
+.PHONY: clean
+clean:
+	rm -rf storage
+	rm -rf out

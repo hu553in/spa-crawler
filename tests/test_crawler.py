@@ -185,7 +185,7 @@ def _make_config(**overrides: Any) -> CrawlConfig:
         login_required=False,
         login_path="/login",
         login="user",
-        password="pass",
+        password="pass",  # nosec B106
         login_input_selector="input[name='login']",
         password_input_selector="input[name='password']",
         headless=True,
