@@ -1,4 +1,4 @@
-# Code of Conduct - SPA crawler
+# Code of Conduct — SPA crawler
 
 ## Our Pledge
 

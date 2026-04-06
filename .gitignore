@@ -1,8 +1,12 @@
-.venv/
-__pycache__/
-storage/
-out/
 .DS_Store
+Thumbs.db
 .env
+.venv/
+.pytest_cache/
+.ruff_cache/
+__pycache__/
 .coverage
 .coverage.*
+coverage.xml
+out/
+storage/

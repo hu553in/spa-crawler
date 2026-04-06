@@ -12,8 +12,6 @@ into a local directory so the result can be served by a static web server.
 The project targets modern SPAs and Next.js-style applications where content is rendered dynamically and
 traditional tools like `wget` or `curl` often fail to capture fully working pages.
 
----
-
 ## Features
 
 - Optional authentication flow
@@ -49,8 +47,6 @@ traditional tools like `wget` or `curl` often fail to capture fully working page
   - Exports high-confidence Caddy redirect rules to `out/redirects.caddy`
   - Creates HTML redirect pages for missing source pages as a static-hosting fallback
 
----
-
 ## Output structure
 
 ```
@@ -84,8 +80,6 @@ Typical serving layout:
 - `out/redirects.caddy` → generated Caddy `redir` rules from observed redirects
 - `out/pages` and `out/pages_q` may include generated HTML redirect pages for missing sources
 
----
-
 ## Install
 
 1. Install [uv](https://docs.astral.sh/uv/)
@@ -93,8 +87,6 @@ Typical serving layout:
    ```
    make install_deps
    ```
-
----
 
 ## Usage
 
@@ -169,16 +161,12 @@ Notes:
 - `/app/storage` is declared as a volume for Crawlee runtime state. Mount it too
   if you want to inspect or persist that state across runs.
 
----
-
 ## CLI filtering defaults
 
 - Include links: `{base_url}/**` when no include filters are provided
 - Exclude links: login regex only (`.*{login_path}.*`) when `--login-required` is set
 - API path prefixes: empty by default; add `--api-path-prefix` values if you want API routes excluded
   from page discovery, asset mirroring, and redirect collection
-
----
 
 ## Deployment of mirrored site
 
@@ -235,8 +223,6 @@ Redirect support must also be ported:
 For Nginx specifically, reproducing query-based lookup (`{query}` in the filesystem path) and fallback chains
 usually requires `njs` or careful `map` + `try_files` composition.
 
----
-
 ## Limitations
 
 This is a hobby / experimental project.
@@ -248,8 +234,6 @@ Session behavior is currently hardcoded.
 There are no CLI arguments to tune session pool settings or advanced browser session parameters.
 
 Authenticated crawling may require manual code adjustments.
-
----
 
 ### High parallelism and memory usage
 
@@ -283,8 +267,6 @@ Tuning guidance:
 - Lower values can reduce OOM risk on smaller machines
 - Higher values can improve throughput on larger machines, but may increase RAM pressure
 
----
-
 ### Large number of HTTP errors in output
 
 During crawling you may see large amounts of:
@@ -296,8 +278,6 @@ During crawling you may see large amounts of:
 This is expected behavior for modern SPAs and does not necessarily indicate crawler failure.
 
 The crawler intentionally prioritizes successful page mirroring over eliminating every failed request.
-
----
 
 ### Not all assets can be mirrored
 
@@ -314,8 +294,6 @@ Some resources may be skipped due to:
 
 The mirrored site may occasionally require manual fixes.
 
----
-
 ### URL discovery is heuristic
 
 The crawler attempts to discover routes using:
@@ -329,8 +307,6 @@ it may never be discovered automatically.
 
 Manual entrypoints may be required.
 
----
-
 ### Redirect export is observational
 
 `out/redirects.caddy` and generated HTML redirect pages are based only on redirects observed during the crawl.
@@ -340,8 +316,6 @@ This means:
 - Paths never visited during the crawl will not have redirect rules
 - Ambiguous source URLs may be ignored if confidence is below threshold
 - Only one best target per source URL is exported
-
----
 
 ### Stability vs. completeness trade-off
 
@@ -356,8 +330,6 @@ over:
 - Perfect site replication
 - Exhaustive browser instrumentation
 
----
-
 ## Tips / troubleshooting
 
 ### SPA login inputs reset while typing
@@ -365,8 +337,6 @@ over:
 Some SPAs rerender login forms during hydration.
 
 Increase the rerender timeout to allow DOM stabilization.
-
----
 
 ### Pages exist but never get crawled
 
@@ -382,8 +352,6 @@ Possible fixes:
 - Add manual entrypoints via `--additional-crawl-entrypoint-url`
 - Extend URL extraction logic for project-specific patterns
 
----
-
 ### Assets missing / CSS not loading
 
 Assets are mirrored using Playwright request interception.
@@ -393,8 +361,6 @@ Some resource types cannot be reliably captured and will be skipped.
 HTML `document` responses are intentionally stored from DOM snapshots in `out/pages/**`
 instead of being mirrored from raw route interception responses.
 
----
-
 ### Unexpected logout or broken authentication
 
 Recommended configuration:
@@ -402,8 +368,6 @@ Recommended configuration:
 - `concurrency = 1`
 - Single session pool
 - No session rotation
-
----
 
 ## Development status
 
@@ -421,8 +385,6 @@ It is useful for:
 - Static hosting tests
 
 It is **not** intended as a universal or production-grade website archiving solution.
-
----
 
 ## Ethics and legality
 
