@@ -1,4 +1,4 @@
-# Code of Conduct — SPA crawler
+# Code of Conduct
 
 ## Our Pledge
 
@@ -14,35 +14,35 @@ appearance, race, religion, or sexual identity and orientation.
 Examples of behaviour that contributes to a positive environment for our
 community include:
 
-- Demonstrating empathy and kindness toward other people
-- Being respectful of differing opinions, viewpoints, and experiences
-- Giving and gracefully accepting constructive feedback
-- Accepting responsibility and apologising to those affected by our mistakes,
-  and learning from the experience
-- Focusing on what is best not just for us as individuals, but for the
-  overall community
+* Demonstrating empathy and kindness toward other people
+* Being respectful of differing opinions, viewpoints, and experiences
+* Giving and gracefully accepting constructive feedback
+* Accepting responsibility and apologising to those affected by our mistakes,
+and learning from the experience
+* Focusing on what is best not just for us as individuals, but for the
+overall community
 
 Examples of unacceptable behaviour include:
 
-- The use of sexualised language or imagery, and sexual attention or advances
-- Trolling, insulting or derogatory comments, and personal or political attacks
-- Public or private harassment
-- Publishing others' private information, such as a physical or email
-  address, without their explicit permission
-- Other conduct which could reasonably be considered inappropriate in a
-  professional setting
+* The use of sexualised language or imagery, and sexual attention or advances
+* Trolling, insulting or derogatory comments, and personal or political attacks
+* Public or private harassment
+* Publishing others' private information, such as a physical or email
+address, without their explicit permission
+* Other conduct which could reasonably be considered inappropriate in a
+professional setting
 
 ## Our Responsibilities
 
 Project maintainers are responsible for clarifying and enforcing our standards of
 acceptable behaviour and will take appropriate and fair corrective action in
-response to any instances of unacceptable behaviour.
+response to any behaviour that they deem inappropriate,
+threatening, offensive, or harmful.
 
 Project maintainers have the right and responsibility to remove, edit, or reject
 comments, commits, code, wiki edits, issues, and other contributions that are
-not aligned to this Code of Conduct, or to ban
-temporarily or permanently any contributor for other behaviours that they deem
-inappropriate, threatening, offensive, or harmful.
+not aligned to this Code of Conduct, and will
+communicate reasons for moderation decisions when appropriate.
 
 ## Scope
 
