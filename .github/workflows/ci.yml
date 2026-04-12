@@ -46,6 +46,7 @@ jobs:
     needs: publish
     uses: hu553in/common-things/.github/workflows/attest-docker.yml@main
     permissions:
+      packages: write
       id-token: write
       attestations: write
     with:
