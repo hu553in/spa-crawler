@@ -38,8 +38,16 @@ jobs:
     permissions:
       contents: read
       packages: write
+    with:
+      image: ghcr.io/${{ github.repository }}
+      file: ./Dockerfile.spa-crawler
+
+  attest:
+    needs: publish
+    uses: hu553in/common-things/.github/workflows/attest-docker.yml@main
+    permissions:
       id-token: write
       attestations: write
     with:
       image: ghcr.io/${{ github.repository }}
-      file: ./Dockerfile.spa-crawler
+      digest: ${{ needs.publish.outputs.digest }}
