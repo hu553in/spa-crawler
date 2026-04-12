@@ -38,6 +38,8 @@ jobs:
     permissions:
       contents: read
       packages: write
+      id-token: write
+      attestations: write
     with:
       image: ghcr.io/${{ github.repository }}
       file: ./Dockerfile.spa-crawler
