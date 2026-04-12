@@ -28,7 +28,7 @@ jobs:
             prek|${{ runner.os }}|
       - uses: j178/prek-action@v2
         with:
-          extra_args: --all-files --hook-stage pre-commit
+          extra-args: --all-files --hook-stage pre-commit
 
   publish:
     needs: check
