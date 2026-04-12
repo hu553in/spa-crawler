@@ -1,7 +1,7 @@
 [project]
 name = "spa-crawler"
 version = "0.0.1"
-description = "A CLI-friendly crawler that can optionally log in, crawl a website, and mirror pages and static assets into a local directory so the result can be served by a static web server (Caddy, etc.)"
+description = "A CLI-friendly crawler that can optionally authenticate, crawl a website, and mirror pages and static assets into a local directory so the result can be served by a static web server."
 requires-python = ">=3.14"
 readme = "README.md"
 

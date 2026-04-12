@@ -85,7 +85,7 @@ Typical serving layout:
 1. Install [uv](https://docs.astral.sh/uv/)
 2. Install dependencies:
    ```
-   make install_deps
+   make install-deps
    ```
 
 ## Usage

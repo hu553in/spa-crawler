@@ -2,24 +2,24 @@ SHELL := /bin/bash
 .ONESHELL:
 .SHELLFLAGS := -euo pipefail -c
 
-.PHONY: ensure_env
-ensure_env:
+.PHONY: ensure-env
+ensure-env:
 	if [ ! -f .env ]; then cp .env.example .env; fi
 
-.PHONY: install_deps
-install_deps:
+.PHONY: install-deps
+install-deps:
 	uv sync --frozen --no-install-project
 
-.PHONY: sync_deps
-sync_deps:
+.PHONY: sync-deps
+sync-deps:
 	uv sync
 
-.PHONY: check_deps_updates
-check_deps_updates:
+.PHONY: check-deps-updates
+check-deps-updates:
 	uv tree --outdated --depth=1 | grep latest
 
-.PHONY: check_deps_vuln
-check_deps_vuln:
+.PHONY: check-deps-vuln
+check-deps-vuln:
 	uv run pysentry-rs .
 
 .PHONY: lint
@@ -31,8 +31,8 @@ lint:
 test:
 	uv run pytest
 
-.PHONY: check_types
-check_types:
+.PHONY: check-types
+check-types:
 	uv run ty check .
 
 .PHONY: check
@@ -46,22 +46,22 @@ help:
 	uv run python -m spa_crawler --help
 
 .PHONY: crawl
-crawl: ensure_env
+crawl: ensure-env
 	uv run --env-file .env python -m spa_crawler
 
-.PHONY: start_spa
-start_spa: ensure_env
+.PHONY: start-spa
+start-spa: ensure-env
 	docker compose -f docker-compose.spa.yml up -d --build
 
-.PHONY: stop_spa
-stop_spa: ensure_env
+.PHONY: stop-spa
+stop-spa: ensure-env
 	docker compose -f docker-compose.spa.yml down
 
-.PHONY: restart_spa
-restart_spa: stop_spa start_spa
+.PHONY: restart-spa
+restart-spa: stop-spa start-spa
 
 .PHONY: all
-all: stop_spa clean install_deps crawl start_spa
+all: stop-spa clean install-deps crawl start-spa
 
 .PHONY: clean
 clean:
