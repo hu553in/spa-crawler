@@ -5,7 +5,7 @@ description = "A CLI-friendly crawler that can optionally authenticate, crawl a 
 requires-python = ">=3.14"
 readme = "README.md"
 
-dependencies = ["crawlee[playwright]", "typer>=0.24.1", "yarl>=1.23.0"]
+dependencies = ["crawlee[playwright]", "typer>=0.24.2", "yarl>=1.23.0"]
 
 [dependency-groups]
 dev = [
