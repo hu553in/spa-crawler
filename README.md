@@ -49,7 +49,7 @@ traditional tools like `wget` or `curl` often fail to capture fully working page
 
 ## Output structure
 
-```
+```text
 out/
   redirects.caddy
   pages/
@@ -74,9 +74,9 @@ out/
 Typical serving layout:
 
 - `out/pages` → HTML root
-- `out/pages_q` → query HTML variants (e.g. `/search?page=2`)
+- `out/pages_q` → query HTML variants (e.g., `/search?page=2`)
 - `out/assets` → static files root (or mounted under `/`, depending on server configuration)
-- `out/assets_q` → query-based static variants (e.g. `/app.js?v=123`)
+- `out/assets_q` → query-based static variants (e.g., `/app.js?v=123`)
 - `out/redirects.caddy` → generated Caddy `redir` rules from observed redirects
 - `out/pages` and `out/pages_q` may include generated HTML redirect pages for missing sources
 
@@ -97,7 +97,7 @@ The crawler is implemented as:
 
 Basic flow:
 
-```
+```bash
 make help
 ```
 
@@ -197,140 +197,26 @@ Then set the environment variables used by `Caddyfile`:
 - `BASIC_AUTH_USER=<username>`
 - `BASIC_AUTH_PASSWORD_HASH=<output from previous command>`
 
-### If you want a server other than Caddy
+### Serving without Caddy
 
-The repository ships only a Caddy serving configuration.
-For any other server, you must reimplement the same URL-to-filesystem lookup behavior.
-
-What must be ported from the `Caddyfile` logic:
-
-- Page lookup without query: `/pages{path}` → `/pages{path}/index.html` → `/pages{path}.html`
-- Page lookup with query: `/pages_q{path}/{query}` → `/pages_q{path}/{query}/index.html` → `/pages_q{path}/{query}.html`
-  (with fallback to non-query pages)
-- Asset lookup without query: `/assets{path}` → `/assets{path}.*` → `/assets{path}.bin`
-- Asset lookup with query: `/assets_q{path}/{query}` (with fallback to non-query assets)
-- Header policy: immutable cache for `/_next/*`, no-cache for mirrored HTML pages
-- Method policy: non-`GET`/`HEAD` requests are redirected with `303` to the same URI before static lookup
-
-Redirect support must also be ported:
-
-- Current export is Caddy-specific (`out/redirects.caddy` with `redir` directives)
-- For another server, add a converter step (from observed redirects to that server's syntax)
-  or implement a new Python exporter
-- HTML redirect pages in `out/pages` and `out/pages_q` are server-agnostic fallbacks and should still work
-  if lookup is ported correctly
-
-For Nginx specifically, reproducing query-based lookup (`{query}` in the filesystem path) and fallback chains
-usually requires `njs` or careful `map` + `try_files` composition.
+The repository ships only Caddy configuration. For other servers, reimplement the URL-to-filesystem
+lookup and redirect rules from `Caddyfile` (page/asset lookup with and without query strings,
+immutable cache for `/_next/*`, method normalization to `GET`).
 
 ## Limitations
 
-This is a hobby / experimental project.
-It aims to handle modern SPAs reasonably well but is **not a fully robust site-mirroring solution**.
+This is a hobby/experimental project, not a universal site-mirroring solution.
 
-### Session configuration
+- Session behavior is hardcoded (no CLI tuning). Authenticated crawling may need manual code adjustments.
+- High concurrency can cause RAM pressure and instability. Use low concurrency; `concurrency = 1` for auth.
+- Tune Crawlee memory via `CRAWLEE_MEMORY_MBYTES` and `CRAWLEE_MAX_USED_MEMORY_RATIO` env vars.
+- Many 404s, failed asset requests, and transient errors during crawling are expected and normal for SPAs.
+- Not all assets can be guaranteed captured (streaming responses, dynamic URLs, auth-protected resources).
+- URL discovery is heuristic (DOM, `__NEXT_DATA__`, `/_next/data/**.json`). Hidden routes may be missed.
+- Redirect export is observational: only redirects seen during crawl are exported.
+- The project favors simplicity and maintainability over perfect replication.
 
-Session behavior is currently hardcoded.
-There are no CLI arguments to tune session pool settings or advanced browser session parameters.
-
-Authenticated crawling may require manual code adjustments.
-
-### High parallelism and memory usage
-
-At high concurrency levels the crawler may:
-
-- Consume large amounts of RAM
-- Trigger repeated warnings about memory limits
-- Become unstable or slower
-
-Recommended approach:
-
-- Use low concurrency
-- For authenticated crawling, use `concurrency = 1`
-
-### Hardware tuning
-
-You can tune Crawlee memory behavior via environment variables:
-
-- `CRAWLEE_MEMORY_MBYTES`: absolute memory limit (in MB) used by Crawlee autoscaling
-- `CRAWLEE_MAX_USED_MEMORY_RATIO`: fraction of that limit that can be used before throttling
-
-Example `.env` values:
-
-```
-CRAWLEE_MEMORY_MBYTES=20000
-CRAWLEE_MAX_USED_MEMORY_RATIO=0.95
-```
-
-Tuning guidance:
-
-- Lower values can reduce OOM risk on smaller machines
-- Higher values can improve throughput on larger machines, but may increase RAM pressure
-
-### Large number of HTTP errors in output
-
-During crawling you may see large amounts of:
-
-- 404 responses
-- Failed asset requests
-- Transient navigation errors
-
-This is expected behavior for modern SPAs and does not necessarily indicate crawler failure.
-
-The crawler intentionally prioritizes successful page mirroring over eliminating every failed request.
-
-### Not all assets can be mirrored
-
-The crawler downloads many static assets but **cannot guarantee complete asset capture**.
-
-Some resources may be skipped due to:
-
-- Streaming or opaque responses
-- Dynamically generated URLs
-- Authentication-protected resources
-- Browser caching behavior
-- Implementation complexity
-- Unsafe or ambiguous query strings for static-server mapping
-
-The mirrored site may occasionally require manual fixes.
-
-### URL discovery is heuristic
-
-The crawler attempts to discover routes using:
-
-- DOM extraction
-- `__NEXT_DATA__` parsing
-- `/_next/data/**.json` parsing
-
-However, if a route is only accessible via complex client logic or hidden interactions,
-it may never be discovered automatically.
-
-Manual entrypoints may be required.
-
-### Redirect export is observational
-
-`out/redirects.caddy` and generated HTML redirect pages are based only on redirects observed during the crawl.
-
-This means:
-
-- Paths never visited during the crawl will not have redirect rules
-- Ambiguous source URLs may be ignored if confidence is below threshold
-- Only one best target per source URL is exported
-
-### Stability vs. completeness trade-off
-
-The project intentionally favors:
-
-- Simplicity
-- Maintainability
-- Ease of experimentation
-
-over:
-
-- Perfect site replication
-- Exhaustive browser instrumentation
-
-## Tips / troubleshooting
+## Tips and troubleshooting
 
 ### SPA login inputs reset while typing
 
