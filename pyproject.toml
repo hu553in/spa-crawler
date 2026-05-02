@@ -5,7 +5,7 @@ description = "CLI-friendly crawler for mirroring websites, including authentica
 requires-python = ">=3.14"
 readme = "README.md"
 
-dependencies = ["crawlee[playwright]", "typer>=0.25.0", "yarl>=1.23.0"]
+dependencies = ["crawlee[playwright]", "typer>=0.25.1", "yarl>=1.23.0"]
 
 [dependency-groups]
 dev = [
