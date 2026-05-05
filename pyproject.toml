@@ -9,7 +9,7 @@ dependencies = ["crawlee[playwright]", "typer>=0.25.1", "yarl>=1.23.0"]
 
 [dependency-groups]
 dev = [
-  "prek>=0.3.11",
+  "prek>=0.3.12",
   "pysentry-rs>=0.4.5",
   "pytest>=9.0.2",
   "pytest-cov>=7.1.0",
