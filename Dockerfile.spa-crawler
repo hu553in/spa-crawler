@@ -4,20 +4,21 @@ FROM ghcr.io/astral-sh/uv:python3.14-bookworm-slim AS deps
 WORKDIR /app
 
 ENV UV_PROJECT_ENVIRONMENT=/app/.venv \
-    UV_CACHE_DIR=/root/.cache/uv \
-    PLAYWRIGHT_BROWSERS_PATH=/ms-playwright
+  UV_CACHE_DIR=/root/.cache/uv \
+  PLAYWRIGHT_BROWSERS_PATH=/ms-playwright
 
 COPY pyproject.toml uv.lock ./
 RUN --mount=type=cache,target=/root/.cache/uv \
-    uv sync --frozen --no-dev \
-    && uv run playwright install --with-deps --only-shell chromium
+  uv sync --frozen --no-dev \
+  && uv run playwright install --with-deps --only-shell chromium
 
 FROM ghcr.io/astral-sh/uv:python3.14-bookworm-slim AS runner
 WORKDIR /app
 
 ENV PYTHONUNBUFFERED=1 \
-    UV_PROJECT_ENVIRONMENT=/app/.venv \
-    PLAYWRIGHT_BROWSERS_PATH=/ms-playwright
+  UV_PROJECT_ENVIRONMENT=/app/.venv \
+  PLAYWRIGHT_BROWSERS_PATH=/ms-playwright \
+  UV_CACHE_DIR=/tmp/uv-cache
 
 RUN useradd -m app
 
