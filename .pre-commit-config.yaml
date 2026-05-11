@@ -32,6 +32,16 @@ repos:
       - id: pysentry
         stages: [pre-commit]
         args: ['.']
+  - repo: https://github.com/jendrikseipp/vulture
+    rev: v2.16
+    hooks:
+      - id: vulture
+        stages: [pre-commit]
+  - repo: https://github.com/osprey-oss/deptry.git
+    rev: 0.25.1
+    hooks:
+      - id: deptry
+        stages: [pre-commit]
   - repo: https://github.com/pre-commit/pygrep-hooks
     rev: v1.10.0
     hooks:

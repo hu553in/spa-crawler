@@ -31,11 +31,11 @@ check:
 
 .PHONY: help
 help:
-	uv run python -m spa_crawler --help
+	uv run python3 -m spa_crawler --help
 
 .PHONY: crawl
 crawl: ensure-env
-	uv run --env-file .env python -m spa_crawler
+	uv run --env-file .env python3 -m spa_crawler
 
 .PHONY: start-spa
 start-spa: ensure-env

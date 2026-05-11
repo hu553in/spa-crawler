@@ -10,7 +10,7 @@ ENV UV_PROJECT_ENVIRONMENT=/app/.venv \
 COPY pyproject.toml uv.lock ./
 RUN --mount=type=cache,target=/root/.cache/uv \
   uv sync --frozen --no-dev \
-  && uv run playwright install --with-deps --only-shell chromium
+  && /app/.venv/bin/playwright install --with-deps --only-shell chromium
 
 FROM ghcr.io/astral-sh/uv:python3.14-bookworm-slim AS runner
 WORKDIR /app
@@ -29,4 +29,4 @@ COPY --chown=app:app spa_crawler ./spa_crawler
 
 USER app
 VOLUME ["/app/out", "/app/storage"]
-ENTRYPOINT ["uv", "run", "python", "-m", "spa_crawler"]
+ENTRYPOINT ["/app/.venv/bin/python", "-m", "spa_crawler"]
