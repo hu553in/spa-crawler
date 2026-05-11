@@ -3,13 +3,6 @@ default_install_hook_types: [pre-commit, commit-msg]
 repos:
   - repo: local
     hooks:
-      - id: install-deps
-        name: install deps
-        entry: make install-deps
-        language: system
-        always_run: true
-        pass_filenames: false
-        stages: [pre-commit]
       - id: test
         name: test
         entry: make test
@@ -20,6 +13,13 @@ repos:
       - id: check-types
         name: check types
         entry: make check-types
+        language: system
+        always_run: true
+        pass_filenames: false
+        stages: [pre-commit]
+      - id: deptry
+        name: deptry
+        entry: uv run deptry .
         language: system
         always_run: true
         pass_filenames: false
@@ -59,11 +59,6 @@ repos:
     rev: v2.16
     hooks:
       - id: vulture
-        stages: [pre-commit]
-  - repo: https://github.com/osprey-oss/deptry.git
-    rev: 0.25.1
-    hooks:
-      - id: deptry
         stages: [pre-commit]
   - repo: https://github.com/pre-commit/pygrep-hooks
     rev: v1.10.0
