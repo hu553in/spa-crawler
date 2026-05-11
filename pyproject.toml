@@ -7,7 +7,7 @@ readme = "README.md"
 
 dependencies = [
     "crawlee[playwright]",
-    "playwright>=1.58.0",
+    "playwright>=1.59.0",
     "rich>=14.3.2",
     "typer>=0.25.1",
     "yarl>=1.23.0",
@@ -21,7 +21,7 @@ dev = [
   "pytest>=9.0.2",
   "pytest-cov>=7.1.0",
   "ruff>=0.15.12",
-  "ty>=0.0.34",
+  "ty>=0.0.35",
 ]
 
 [tool.uv]
