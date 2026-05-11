@@ -1,6 +1,29 @@
 default_install_hook_types: [pre-commit, commit-msg]
 
 repos:
+  - repo: local
+    hooks:
+      - id: install-deps
+        name: install deps
+        entry: make install-deps
+        language: system
+        always_run: true
+        pass_filenames: false
+        stages: [pre-commit]
+      - id: test
+        name: test
+        entry: make test
+        language: system
+        always_run: true
+        pass_filenames: false
+        stages: [pre-commit]
+      - id: check-types
+        name: check types
+        entry: make check-types
+        language: system
+        always_run: true
+        pass_filenames: false
+        stages: [pre-commit]
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v6.0.0
     hooks:
@@ -27,7 +50,7 @@ repos:
         stages: [pre-commit]
         args: [--indent, '2', --autofix, --no-sort-keys, --no-ensure-ascii]
   - repo: https://github.com/pysentry/pysentry-pre-commit
-    rev: v0.4.3
+    rev: v0.4.5
     hooks:
       - id: pysentry
         stages: [pre-commit]
@@ -54,7 +77,7 @@ repos:
         stages: [commit-msg]
         args: [--strict]
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.15.9
+    rev: v0.15.12
     hooks:
       - id: ruff-check
         stages: [pre-commit]
@@ -67,19 +90,3 @@ repos:
       - id: bandit
         stages: [pre-commit]
         args: [-c, pyproject.toml]
-  - repo: local
-    hooks:
-      - id: test
-        name: test
-        entry: make test
-        language: system
-        always_run: true
-        pass_filenames: false
-        stages: [pre-commit]
-      - id: check-types
-        name: check types
-        entry: make check-types
-        language: system
-        always_run: true
-        pass_filenames: false
-        stages: [pre-commit]
