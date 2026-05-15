@@ -16,11 +16,11 @@ dependencies = [
 [dependency-groups]
 dev = [
   "deptry>=0.25.1",
-  "prek>=0.3.13",
+  "prek>=0.4.0",
   "pysentry-rs>=0.4.5",
   "pytest>=9.0.2",
   "pytest-cov>=7.1.0",
-  "ruff>=0.15.12",
+  "ruff>=0.15.13",
   "ty>=0.0.35",
 ]
 
