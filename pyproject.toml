@@ -1,0 +1,66 @@
+[project]
+name = "spa-crawler"
+version = "0.0.1"
+description = "CLI-friendly crawler for mirroring websites, including authenticated SPAs, for static hosting."
+requires-python = ">=3.14"
+readme = "README.md"
+
+dependencies = [
+    "crawlee[playwright]",
+    "playwright>=1.60.0",
+    "rich>=15.0.0",
+    "typer>=0.26.7",
+    "yarl>=1.24.2",
+]
+
+[dependency-groups]
+dev = [
+  "deptry>=0.25.1",
+  "prek>=0.4.5",
+  "pysentry-rs>=0.4.6",
+  "pytest>=9.1.0",
+  "pytest-cov>=7.1.0",
+  "ruff>=0.15.17",
+  "ty>=0.0.50",
+]
+
+[tool.uv]
+link-mode = "copy"
+
+[tool.pytest.ini_options]
+addopts = "--cov=spa_crawler --cov-report=term-missing --cov-fail-under=95"
+
+[tool.ruff]
+target-version = "py313"
+line-length = 100
+extend-exclude = [".venv"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM", "ARG", "PL", "RUF"]
+extend-ignore = ["RUF001", "PLR0911", "PLR0912", "PLR0913", "PLR0915"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["spa_crawler"]
+split-on-trailing-comma = false
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = true
+
+[tool.pysentry.defaults]
+fail_on = "low"
+
+[tool.pysentry.sources]
+enabled = ["pypa", "pypi", "osv"]
+
+[tool.deptry]
+known_first_party = ["spa_crawler"]
+
+[tool.vulture]
+paths = ["spa_crawler", "tests"]
+min_confidence = 100
+sort_by_size = true
+
+[tool.bandit.assert_used]
+skips = ["*_test.py", "*test_*.py"]

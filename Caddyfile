@@ -1,0 +1,56 @@
+:8080
+
+@authEnabled expression `{env.ENABLE_BASIC_AUTH} == "true"`
+
+basic_auth @authEnabled {
+	{$BASIC_AUTH_USER} {$BASIC_AUTH_PASSWORD_HASH}
+}
+
+encode zstd gzip
+
+log {
+	output stdout
+	format console
+}
+
+@not_get not method GET HEAD
+redir @not_get {scheme}://{hostport}{uri} 303
+
+import /srv/redirects.caddy
+
+@next path /_next/*
+
+handle @next {
+	root * /srv
+	try_files /assets_q{path}/{query} /assets_q{path}.* /assets{path} /assets{path}.* /assets{path}.bin
+
+	header Cache-Control "public, max-age=31536000, immutable"
+
+	file_server browse
+}
+
+@hasQuery expression `{query} != ""`
+
+handle @hasQuery {
+	root * /srv
+	try_files /pages_q{path}/{query} /pages_q{path}/{query}/index.html /pages_q{path}/{query}.html /pages_q{path}.* /pages{path} /pages{path}/index.html /pages{path}.html /pages{path}.* /assets_q{path}/{query} /assets_q{path}.* /assets{path} /assets{path}.* /assets{path}.bin
+
+	@pageWithQuery file {
+		try_files /pages_q{path}/{query} /pages_q{path}/{query}/index.html /pages_q{path}/{query}.html /pages_q{path}.* /pages{path} /pages{path}/index.html /pages{path}.html /pages{path}.*
+	}
+	header @pageWithQuery Cache-Control "no-cache"
+
+	file_server browse
+}
+
+handle {
+	root * /srv
+	try_files /pages{path} /pages{path}/index.html /pages{path}.html /pages{path}.* /assets{path} /assets{path}.* /assets{path}.bin
+
+	@page file {
+		try_files /pages{path} /pages{path}/index.html /pages{path}.html /pages{path}.*
+	}
+	header @page Cache-Control "no-cache"
+
+	file_server browse
+}
