@@ -25,9 +25,11 @@ dev = [
 ]
 
 [tool.uv]
+default-groups = ["dev"]
 link-mode = "copy"
 
 [tool.pytest.ini_options]
+testpaths = ["tests"]
 addopts = "--cov=spa_crawler --cov-report=term-missing --cov-fail-under=95"
 
 [tool.ruff]
@@ -36,7 +38,7 @@ line-length = 100
 extend-exclude = [".venv"]
 
 [tool.ruff.lint]
-select = ["E", "F", "I", "UP", "B", "SIM", "ARG", "PL", "RUF"]
+select = ["E", "F", "I", "UP", "B", "SIM", "ARG", "PL", "RUF", "C4", "FA", "N", "PERF", "W"]
 extend-ignore = ["RUF001", "PLR0911", "PLR0912", "PLR0913", "PLR0915"]
 
 [tool.ruff.lint.isort]
