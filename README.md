@@ -77,7 +77,7 @@ Published crawler image:
 ```bash
 docker run --rm \
   -v "$(pwd)/out:/app/out" \
-  ghcr.io/hu553in/spa-crawler:latest \
+  ghcr.io/hu553in/spa-crawler \
   --base-url https://example.com \
   --no-login-required
 ```
