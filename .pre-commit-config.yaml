@@ -48,13 +48,13 @@ repos:
         stages: [pre-commit]
       - id: pretty-format-json
         stages: [pre-commit]
-        args: [--indent, '2', --autofix, --no-sort-keys, --no-ensure-ascii]
+        args: [--indent, "2", --autofix, --no-sort-keys, --no-ensure-ascii]
   - repo: https://github.com/pysentry/pysentry-pre-commit
     rev: v0.4.5
     hooks:
       - id: pysentry
         stages: [pre-commit]
-        args: ['.']
+        args: ["."]
   - repo: https://github.com/jendrikseipp/vulture
     rev: v2.16
     hooks:
@@ -80,7 +80,7 @@ repos:
       - id: ruff-format
         stages: [pre-commit]
   - repo: https://github.com/PyCQA/bandit
-    rev: '1.9.4'
+    rev: "1.9.4"
     hooks:
       - id: bandit
         stages: [pre-commit]
