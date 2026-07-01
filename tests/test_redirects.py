@@ -19,7 +19,7 @@ class _StatusResponse:
 
 class _NavRequest:
     def __init__(
-        self, url: str, *, status: object | None, redirected_from: "_NavRequest | None" = None
+        self, url: str, *, status: object | None, redirected_from: _NavRequest | None = None
     ) -> None:
         self.url = url
         self.redirected_from = redirected_from

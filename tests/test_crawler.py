@@ -20,7 +20,7 @@ class _FakeRequest:
         self.loaded_url = None
 
     @staticmethod
-    def from_url(url: str, label: str | None = None) -> "_FakeRequest":
+    def from_url(url: str, label: str | None = None) -> _FakeRequest:
         return _FakeRequest(url, label=label)
 
 
@@ -54,7 +54,7 @@ class _FakeElement:
         self.pressed.append(key)
 
     @property
-    def first(self) -> "_FakeElement":
+    def first(self) -> _FakeElement:
         return self
 
 
@@ -118,7 +118,7 @@ class _FakeRouter:
 
 class _FakePlaywrightCrawler:
     page_url_by_label: ClassVar[dict[str | None, str]] = {}
-    last_instance: "_FakePlaywrightCrawler | None" = None
+    last_instance: _FakePlaywrightCrawler | None = None
 
     def __init__(self, **kwargs: Any) -> None:
         self.kwargs = kwargs
@@ -145,7 +145,7 @@ class _FakePlaywrightCrawler:
 
 
 class _FakeRedirectCollector:
-    last_instance: ClassVar["_FakeRedirectCollector | None"] = None
+    last_instance: ClassVar[_FakeRedirectCollector | None] = None
 
     def __init__(
         self,

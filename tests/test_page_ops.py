@@ -41,7 +41,7 @@ class _Locator:
         return None
 
     @property
-    def first(self) -> "_Locator":
+    def first(self) -> _Locator:
         return self
 
 
