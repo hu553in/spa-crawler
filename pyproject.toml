@@ -1,7 +1,7 @@
 [project]
 name = "spa-crawler"
 version = "0.0.1"
-description = "CLI-friendly crawler for mirroring websites, including authenticated SPAs, for static hosting."
+description = "CLI crawler for mirroring modern SPAs and Next.js-style sites into static files."
 requires-python = ">=3.14"
 readme = "README.md"
 
@@ -33,7 +33,7 @@ testpaths = ["tests"]
 addopts = "--cov=spa_crawler --cov-report=term-missing --cov-fail-under=95"
 
 [tool.ruff]
-target-version = "py313"
+target-version = "py314"
 line-length = 100
 extend-exclude = [".venv"]
 
