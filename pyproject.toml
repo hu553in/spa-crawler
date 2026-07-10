@@ -16,12 +16,12 @@ dependencies = [
 [dependency-groups]
 dev = [
   "deptry>=0.25.1",
-  "prek>=0.4.6",
+  "prek>=0.4.8",
   "pysentry-rs>=0.4.7",
   "pytest>=9.1.1",
   "pytest-cov>=7.1.0",
   "ruff>=0.15.20",
-  "ty>=0.0.56",
+  "ty>=0.0.57",
 ]
 
 [tool.uv]
