@@ -10,7 +10,7 @@ dependencies = [
   "crawlee[playwright]",
   "playwright>=1.61.0",
   "rich>=15.0.0",
-  "typer>=0.26.8",
+  "typer>=0.27.0",
   "yarl>=1.24.2",
 ]
 
@@ -21,12 +21,12 @@ Repository = "https://github.com/hu553in/spa-crawler"
 dev = [
   "bandit>=1.9.4",
   "deptry>=0.25.1",
-  "prek>=0.4.8",
+  "prek>=0.4.10",
   "pysentry-rs>=0.4.7",
   "pytest>=9.1.1",
   "pytest-cov>=7.1.0",
-  "ruff>=0.15.20",
-  "ty>=0.0.57",
+  "ruff>=0.15.22",
+  "ty>=0.0.60",
   "vulture>=2.16",
 ]
 
