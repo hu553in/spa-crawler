@@ -1,0 +1,6 @@
+*
+!Dockerfile.spa-crawler
+!pyproject.toml
+!uv.lock
+!spa_crawler
+!spa_crawler/**

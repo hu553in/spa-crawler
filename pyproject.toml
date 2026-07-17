@@ -1,20 +1,25 @@
 [project]
 name = "spa-crawler"
-version = "0.0.1"
+version = "0.1.0"
 description = "CLI crawler for mirroring modern SPAs and Next.js-style sites into static files."
-requires-python = ">=3.14"
+authors = [{ name = "Ruslan Khasanshin" }]
 readme = "README.md"
+requires-python = ">=3.14"
 
 dependencies = [
-    "crawlee[playwright]",
-    "playwright>=1.61.0",
-    "rich>=15.0.0",
-    "typer>=0.26.8",
-    "yarl>=1.24.2",
+  "crawlee[playwright]",
+  "playwright>=1.61.0",
+  "rich>=15.0.0",
+  "typer>=0.26.8",
+  "yarl>=1.24.2",
 ]
+
+[project.urls]
+Repository = "https://github.com/hu553in/spa-crawler"
 
 [dependency-groups]
 dev = [
+  "bandit>=1.9.4",
   "deptry>=0.25.1",
   "prek>=0.4.8",
   "pysentry-rs>=0.4.7",
@@ -22,10 +27,10 @@ dev = [
   "pytest-cov>=7.1.0",
   "ruff>=0.15.20",
   "ty>=0.0.57",
+  "vulture>=2.16",
 ]
 
 [tool.uv]
-default-groups = ["dev"]
 link-mode = "copy"
 
 [tool.pytest.ini_options]
@@ -35,10 +40,26 @@ addopts = "--cov=spa_crawler --cov-report=term-missing --cov-fail-under=95"
 [tool.ruff]
 target-version = "py314"
 line-length = 100
-extend-exclude = [".venv"]
 
 [tool.ruff.lint]
-select = ["E", "F", "I", "UP", "B", "SIM", "ARG", "PL", "RUF", "C4", "FA", "N", "PERF", "W"]
+select = [
+  "E",
+  "F",
+  "I",
+  "UP",
+  "B",
+  "SIM",
+  "ARG",
+  "PL",
+  "RUF",
+  "C4",
+  "FA",
+  "N",
+  "PERF",
+  "W",
+  "PGH004",
+  "T10",
+]
 extend-ignore = ["RUF001", "PLR0911", "PLR0912", "PLR0913", "PLR0915"]
 
 [tool.ruff.lint.isort]
@@ -46,8 +67,6 @@ known-first-party = ["spa_crawler"]
 split-on-trailing-comma = false
 
 [tool.ruff.format]
-quote-style = "double"
-indent-style = "space"
 skip-magic-trailing-comma = true
 
 [tool.pysentry.defaults]

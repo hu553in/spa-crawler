@@ -1,0 +1,18 @@
+services:
+  spa:
+    build:
+      context: .
+      dockerfile: Dockerfile.spa
+    ports:
+      - '127.0.0.1:8080:8080'
+    env_file:
+      - .env
+    healthcheck:
+      test: ['CMD-SHELL', 'wget -q --spider http://127.0.0.1:8080/healthz']
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
