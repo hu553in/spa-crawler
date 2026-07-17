@@ -18,6 +18,7 @@ CLI crawler for mirroring modern SPAs and Next.js-style sites into static files.
 
 - Python 3.14+
 - `uv`
+- Bun for repository tooling
 - Playwright-compatible browser dependencies
 - Docker for published crawler images and the static-serving stack
 
@@ -72,12 +73,13 @@ Local crawl with `.env`:
 make crawl
 ```
 
-Published crawler image:
+Published crawler image (`latest` follows `main`; use a published `sha-*` tag for an immutable
+deployment):
 
 ```bash
 docker run --rm \
   -v "$(pwd)/out:/app/out" \
-  ghcr.io/hu553in/spa-crawler \
+  ghcr.io/hu553in/spa-crawler:latest \
   --base-url https://example.com \
   --no-login-required
 ```
@@ -115,7 +117,7 @@ make clean
 The included serving stack uses:
 
 - `Dockerfile.spa`
-- `docker-compose.spa.yml`
+- `compose.yaml`
 - `Caddyfile`
 
 Commands:
@@ -145,13 +147,23 @@ Only crawl content that you are authorized to access, store, and redistribute.
 
 ```bash
 make install-deps
+uv run prek install
 make check
+make check-fix
 ```
 
 Focused checks:
 
 ```bash
 make lint
-make test
+make lint-fix
 make check-types
+make check-deps
+make check-vulns
+make check-unused
+make check-security
+make check-config
+make test
 ```
+
+`make check-config` validates both the Compose stack and the bundled Caddyfile.

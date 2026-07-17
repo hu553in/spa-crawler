@@ -1,6 +1,9 @@
 :8080
 
-@authEnabled expression `{env.ENABLE_BASIC_AUTH} == "true"`
+@authEnabled {
+	expression `{env.ENABLE_BASIC_AUTH} == "true"`
+	not path /healthz
+}
 
 basic_auth @authEnabled {
 	{$BASIC_AUTH_USER} {$BASIC_AUTH_PASSWORD_HASH}
@@ -11,6 +14,10 @@ encode zstd gzip
 log {
 	output stdout
 	format console
+}
+
+handle /healthz {
+	respond 200
 }
 
 @not_get not method GET HEAD

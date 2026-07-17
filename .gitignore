@@ -1,11 +1,15 @@
 .DS_Store
 Thumbs.db
 
-.env
+.env*
+!.env.example
+!.env.example.*
 .venv/
 .pytest_cache/
 .ruff_cache/
 .vscode/
+.idea/
+*.iml
 __pycache__/
 
 .coverage
@@ -18,5 +22,6 @@ dist/
 *.egg-info/
 *.py[cod]
 
-out/
+out/*
+!out/.gitkeep
 storage/
