@@ -14,7 +14,10 @@ RUN --mount=type=cache,target=/go/pkg/mod \
   --mount=type=cache,target=/root/.cache/go-build \
   CADDY_VERSION=$(/tmp/caddy version) \
   && CADDY_VERSION=${CADDY_VERSION%% *} \
-  && CGO_ENABLED=0 xcaddy build "${CADDY_VERSION}" --output /out/caddy
+  && CGO_ENABLED=0 xcaddy build "${CADDY_VERSION}" \
+  --replace golang.org/x/text=golang.org/x/text@v0.39.0 \
+  --replace google.golang.org/grpc=google.golang.org/grpc@v1.82.1 \
+  --output /out/caddy
 
 FROM caddy-runtime
 
