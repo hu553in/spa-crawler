@@ -60,7 +60,14 @@ select = [
   "PGH004",
   "T10",
 ]
-extend-ignore = ["RUF001", "PLR0911", "PLR0912", "PLR0913", "PLR0915"]
+extend-ignore = [
+  "RUF001",
+  "PLR0911",
+  "PLR0912",
+  "PLR0913",
+  "PLR0915",
+  "PLR0917",
+]
 
 [tool.ruff.lint.isort]
 known-first-party = ["spa_crawler"]
