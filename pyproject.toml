@@ -7,7 +7,7 @@ readme = "README.md"
 requires-python = ">=3.14"
 
 dependencies = [
-  "crawlee[playwright]>=1.7.0",
+  "crawlee[playwright]>=1.9.1",
   "playwright>=1.62.0",
   "rich>=15.0.0",
   "typer>=0.27.1",
@@ -25,8 +25,8 @@ dev = [
   "pysentry-rs>=0.4.9",
   "pytest>=9.1.1",
   "pytest-cov>=7.1.0",
-  "ruff>=0.16.2",
-  "ty>=0.0.69",
+  "ruff>=0.16.3",
+  "ty>=0.0.72",
   "vulture>=2.16",
 ]
 
