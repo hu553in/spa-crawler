@@ -7,7 +7,7 @@ readme = "README.md"
 requires-python = ">=3.14"
 
 dependencies = [
-  "crawlee[playwright]",
+  "crawlee[playwright]>=1.7.0",
   "playwright>=1.62.0",
   "rich>=15.0.0",
   "typer>=0.27.1",

@@ -16,7 +16,7 @@ CLI crawler for mirroring modern SPAs and Next.js-style sites into static files.
 
 ## Requirements
 
-- Python 3.14+
+- Python
 - `uv`
 - Bun for repository tooling
 - Playwright-compatible browser dependencies

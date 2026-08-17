@@ -1,4 +1,16 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": ["github>hu553in/common-things//presets/renovate/python"]
+  "extends": ["github>hu553in/common-things//presets/renovate/python"],
+  "customManagers": [
+    {
+      "customType": "regex",
+      "description": "Track Go module overrides in Caddy build",
+      "managerFilePatterns": ["/^Dockerfile\\.spa$/"],
+      "matchStrings": [
+        "(?:^|\\r\\n|\\r|\\n)[ \\t]*--replace[ \\t]+[^=\\s]+=(?<depName>[^@\\s]+)@(?<currentValue>v?\\d+\\.\\d+\\.\\d+)[ \\t]+\\\\[ \\t]*"
+      ],
+      "datasourceTemplate": "go",
+      "versioningTemplate": "semver"
+    }
+  ]
 }

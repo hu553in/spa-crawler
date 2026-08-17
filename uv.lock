@@ -787,7 +787,7 @@ dev = [
 
 [package.metadata]
 requires-dist = [
-    { name = "crawlee", extras = ["playwright"] },
+    { name = "crawlee", extras = ["playwright"], specifier = ">=1.7.0" },
     { name = "playwright", specifier = ">=1.62.0" },
     { name = "rich", specifier = ">=15.0.0" },
     { name = "typer", specifier = ">=0.27.1" },
