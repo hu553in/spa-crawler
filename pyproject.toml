@@ -4,7 +4,7 @@ version = "0.1.0"
 description = "CLI crawler for mirroring modern SPAs and Next.js-style sites into static files."
 authors = [{ name = "Ruslan Khasanshin" }]
 readme = "README.md"
-requires-python = ">=3.14"
+requires-python = ">=3.14.7"
 
 dependencies = [
   "crawlee[playwright]>=1.9.2",
