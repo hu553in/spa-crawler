@@ -7,7 +7,7 @@ readme = "README.md"
 requires-python = ">=3.14"
 
 dependencies = [
-  "crawlee[playwright]>=1.9.1",
+  "crawlee[playwright]>=1.9.2",
   "playwright>=1.62.0",
   "rich>=15.0.0",
   "typer>=0.27.1",
@@ -21,12 +21,12 @@ Repository = "https://github.com/hu553in/spa-crawler"
 dev = [
   "bandit>=1.9.4",
   "deptry>=0.25.1",
-  "prek>=0.4.13",
-  "pysentry-rs>=0.4.9",
+  "prek>=0.4.14",
+  "pysentry-rs>=0.5.0",
   "pytest>=9.1.1",
   "pytest-cov>=7.1.0",
-  "ruff>=0.16.3",
-  "ty>=0.0.72",
+  "ruff>=0.16.4",
+  "ty>=0.0.74",
   "vulture>=2.16",
 ]
 
