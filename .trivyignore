@@ -1,0 +1,4 @@
+# Inherited from ghcr.io/astral-sh/uv:python3.14-trixie-slim.
+# Remove after the base image stops reporting these vulnerabilities.
+GHSA-6v7p-g79w-8964 exp:2026-09-24
+CVE-2025-47273 exp:2026-09-24
