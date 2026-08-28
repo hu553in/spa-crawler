@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1
 
-FROM ghcr.io/astral-sh/uv:python3.14-bookworm-slim AS deps
+FROM ghcr.io/astral-sh/uv:python3.14-trixie-slim AS deps
 WORKDIR /app
 
 ENV UV_PROJECT_ENVIRONMENT=/app/.venv \
@@ -10,9 +10,9 @@ ENV UV_PROJECT_ENVIRONMENT=/app/.venv \
 COPY pyproject.toml uv.lock ./
 RUN --mount=type=cache,target=/root/.cache/uv \
   uv sync --locked --no-dev \
-  && /app/.venv/bin/playwright install --with-deps --only-shell chromium
+  && /app/.venv/bin/playwright install --only-shell chromium
 
-FROM ghcr.io/astral-sh/uv:python3.14-bookworm-slim AS runner
+FROM ghcr.io/astral-sh/uv:python3.14-trixie-slim AS runner
 WORKDIR /app
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
@@ -31,6 +31,11 @@ RUN useradd -m app
 
 COPY --from=deps --chown=app:app /app/.venv ./.venv
 COPY --from=deps --chown=app:app /ms-playwright /ms-playwright
+
+RUN --mount=type=cache,target=/var/cache/apt \
+  --mount=type=cache,target=/var/lib/apt/lists \
+  /app/.venv/bin/playwright install-deps chromium
+
 COPY --chown=app:app pyproject.toml uv.lock ./
 COPY --chown=app:app spa_crawler ./spa_crawler
 
