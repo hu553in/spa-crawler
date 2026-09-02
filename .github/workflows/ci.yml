@@ -7,6 +7,10 @@ on:
   pull_request:
   workflow_dispatch:
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref_type != 'tag' }}
+
 jobs:
   check:
     permissions:
@@ -19,6 +23,7 @@ jobs:
     uses: hu553in/common-things/.github/workflows/check-docker.yml@main
     with:
       file: ./Dockerfile.spa-crawler
+      build: ${{ github.ref != 'refs/heads/main' }}
 
   docker-site:
     permissions:
