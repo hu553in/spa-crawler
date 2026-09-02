@@ -5,7 +5,7 @@ FROM caddy:2.11.4-alpine AS caddy-runtime
 FROM caddy:2.11.4-builder-alpine AS caddy-builder
 
 # Rebuild stock Caddy with current Go to avoid vulnerabilities in the upstream binary.
-FROM golang:1.27.0-alpine3.23 AS builder
+FROM golang:1.27.1-alpine3.23 AS builder
 
 COPY --from=caddy-builder /usr/bin/xcaddy /usr/local/bin/xcaddy
 COPY --from=caddy-runtime /usr/bin/caddy /tmp/caddy
@@ -16,7 +16,7 @@ RUN --mount=type=cache,target=/go/pkg/mod \
   && CADDY_VERSION=${CADDY_VERSION%% *} \
   && CGO_ENABLED=0 xcaddy build "${CADDY_VERSION}" \
   --replace golang.org/x/text=golang.org/x/text@v0.41.0 \
-  --replace google.golang.org/grpc=google.golang.org/grpc@v1.83.1 \
+  --replace google.golang.org/grpc=google.golang.org/grpc@v1.83.2 \
   --output /out/caddy
 
 FROM caddy-runtime
