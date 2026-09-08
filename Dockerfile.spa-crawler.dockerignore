@@ -4,3 +4,5 @@
 !uv.lock
 !spa_crawler
 !spa_crawler/**
+**/__pycache__
+**/*.py[cod]

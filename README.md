@@ -73,6 +73,12 @@ Local crawl with `.env`:
 make crawl
 ```
 
+This prompts for the base URL and requires login by default. For a site without authentication:
+
+```bash
+uv run --env-file .env python3 -m spa_crawler --base-url https://example.com --no-login-required
+```
+
 Published crawler image (`latest` follows `main`; use a published `sha-*` tag for an immutable
 deployment):
 
@@ -166,4 +172,5 @@ make check-config
 make test
 ```
 
-`make check-config` validates both the Compose stack and the bundled Caddyfile.
+`make check-config` validates the Compose stack and checks the bundled Caddyfile with
+`.env.example`.
