@@ -21,13 +21,14 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
   PLAYWRIGHT_BROWSERS_PATH=/ms-playwright \
   UV_CACHE_DIR=/tmp/uv-cache
 
-# hadolint ignore=DL3005
 RUN --mount=type=cache,target=/var/cache/apt \
   --mount=type=cache,target=/var/lib/apt/lists \
   apt-get update && \
   apt-get upgrade -y --no-install-recommends
 
-RUN useradd -m app
+# Runtime dependencies come from the built virtualenv; pip is unused.
+RUN python -m pip uninstall --yes pip \
+  && useradd -m app
 
 COPY --from=deps --chown=app:app /app/.venv ./.venv
 COPY --from=deps --chown=app:app /ms-playwright /ms-playwright

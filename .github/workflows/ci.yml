@@ -23,6 +23,7 @@ jobs:
     uses: hu553in/common-things/.github/workflows/check-docker.yml@main
     with:
       file: ./Dockerfile.spa-crawler
+      no_cache_filters: runner
       build: ${{ github.ref != 'refs/heads/main' }}
 
   docker-site:
@@ -31,6 +32,7 @@ jobs:
     uses: hu553in/common-things/.github/workflows/check-docker.yml@main
     with:
       file: ./Dockerfile.spa
+      no_cache_filters: runtime
 
   publish:
     needs: [check, docker-crawler, docker-site]
@@ -44,3 +46,4 @@ jobs:
     with:
       image: ghcr.io/${{ github.repository }}
       file: ./Dockerfile.spa-crawler
+      no_cache_filters: runner

@@ -59,10 +59,11 @@ check-config:
 	docker compose config --quiet --no-interpolate --no-env-resolution
 	@image=$$(awk '/^FROM caddy:.* AS caddy-runtime$$/{print $$2; exit}' Dockerfile.spa); \
 		test -n "$$image"; \
-		docker run --rm --network none --entrypoint /bin/sh \
-			-e ENABLE_BASIC_AUTH=false \
-			-e BASIC_AUTH_USER=check \
-			-e 'BASIC_AUTH_PASSWORD_HASH=$$2a$$14$$4YbfeJZykhrkPU6.Q7XYE.6tdjDUwMuEBEK8aVM1frvtyQhiA22vG' \
+		env -u ENABLE_BASIC_AUTH -u BASIC_AUTH_USER -u BASIC_AUTH_PASSWORD_HASH \
+			uv run --env-file .env.example docker run --rm --network none --entrypoint /bin/sh \
+			-e ENABLE_BASIC_AUTH \
+			-e BASIC_AUTH_USER \
+			-e BASIC_AUTH_PASSWORD_HASH \
 			-v "$(CURDIR)/Caddyfile:/etc/caddy/Caddyfile:ro" \
 			-v "/dev/null:/srv/redirects.caddy:ro" \
 			"$$image" -ec \
