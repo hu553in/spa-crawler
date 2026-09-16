@@ -21,8 +21,8 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
   PLAYWRIGHT_BROWSERS_PATH=/ms-playwright \
   UV_CACHE_DIR=/tmp/uv-cache
 
-RUN --mount=type=cache,target=/var/cache/apt \
-  --mount=type=cache,target=/var/lib/apt/lists \
+RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
+  --mount=type=cache,target=/var/lib/apt/lists,sharing=locked \
   apt-get update && \
   apt-get upgrade -y --no-install-recommends
 
@@ -33,8 +33,8 @@ RUN python -m pip uninstall --yes pip \
 COPY --from=deps --chown=app:app /app/.venv ./.venv
 COPY --from=deps --chown=app:app /ms-playwright /ms-playwright
 
-RUN --mount=type=cache,target=/var/cache/apt \
-  --mount=type=cache,target=/var/lib/apt/lists \
+RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
+  --mount=type=cache,target=/var/lib/apt/lists,sharing=locked \
   /app/.venv/bin/playwright install-deps chromium
 
 COPY --chown=app:app pyproject.toml uv.lock ./
