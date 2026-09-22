@@ -1,0 +1,4 @@
+# gRPC v1.84.0 includes the fix, but the advisory still lists it as vulnerable.
+# https://github.com/grpc/grpc-go/commit/d5a41119e0e3189ea913cf839586ce34a44f1a3f
+# https://github.com/advisories/GHSA-2v4p-qf9q-27wj
+CVE-2026-84445 exp:2026-10-23
