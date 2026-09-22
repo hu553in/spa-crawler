@@ -16,7 +16,7 @@ RUN --mount=type=cache,target=/go/pkg/mod \
   && CADDY_VERSION=${CADDY_VERSION%% *} \
   && CGO_ENABLED=0 xcaddy build "${CADDY_VERSION}" \
   --replace golang.org/x/text=golang.org/x/text@v0.42.0 \
-  --replace google.golang.org/grpc=google.golang.org/grpc@v1.83.2 \
+  --replace google.golang.org/grpc=google.golang.org/grpc@v1.84.0 \
   --output /out/caddy
 
 FROM caddy-runtime AS runtime
