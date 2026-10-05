@@ -1,8 +1,8 @@
 # syntax=docker/dockerfile:1
 
-FROM caddy:2.11.4-alpine AS caddy-runtime
+FROM caddy:2.11.6-alpine AS caddy-runtime
 
-FROM caddy:2.11.4-builder-alpine AS caddy-builder
+FROM caddy:2.11.6-builder-alpine AS caddy-builder
 
 # Rebuild stock Caddy with current Go to avoid vulnerabilities in the upstream binary.
 FROM golang:1.27.1-alpine3.23 AS builder
