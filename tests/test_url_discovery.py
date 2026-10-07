@@ -150,8 +150,8 @@ def test_transform_enqueue_request() -> None:
         URL("https://example.com"), ["/api"], 2048, trim_chars
     )
 
-    assert transform(cast(RequestOptions, {"url": "mailto:a@b.com"})) == "skip"
-    assert transform(cast(RequestOptions, {"url": "https://other.example.com"})) == "skip"
+    assert transform({"url": "mailto:a@b.com"}) == "skip"
+    assert transform({"url": "https://other.example.com"}) == "skip"
 
     opts = cast(RequestOptions, {"url": "/docs/"})
     result = transform(opts)
