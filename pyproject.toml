@@ -4,7 +4,7 @@ version = "0.1.0"
 description = "CLI crawler for mirroring modern SPAs and Next.js-style sites into static files."
 authors = [{ name = "Ruslan Khasanshin" }]
 readme = "README.md"
-requires-python = ">=3.14"
+requires-python = ">=3.15.0"
 
 dependencies = [
   "crawlee[playwright]>=1.10.4",
@@ -25,8 +25,8 @@ dev = [
   "pysentry-rs>=0.5.0",
   "pytest>=9.1.1",
   "pytest-cov>=7.1.0",
-  "ruff>=0.16.10",
-  "ty>=0.0.85",
+  "ruff>=0.17.0",
+  "ty>=0.0.87",
   "vulture>=2.16",
 ]
 
@@ -38,7 +38,6 @@ testpaths = ["tests"]
 addopts = "--cov=spa_crawler --cov-report=term-missing --cov-fail-under=95"
 
 [tool.ruff]
-target-version = "py314"
 line-length = 100
 
 [tool.ruff.lint]

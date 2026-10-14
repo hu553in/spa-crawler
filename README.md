@@ -8,17 +8,15 @@ CLI crawler for mirroring modern SPAs and Next.js-style sites into static files.
 
 - Optionally logs in through a browser form
 - Crawls rendered pages with Playwright/Crawlee
-- Saves HTML pages to `out/pages/**/index.html`
-- Mirrors same-origin assets to `out/assets/**`
-- Stores query-based page and asset variants in `out/pages_q/**` and `out/assets_q/**`
+- Saves HTML pages and same-origin assets, including query-based variants
 - Discovers links from DOM, Next.js data, intercepted responses, and configured entrypoints
-- Exports observed redirects to `out/redirects.caddy`
+- Exports observed redirects for the bundled Caddy site
 
 ## Requirements
 
 - Python
 - `uv`
-- Bun for repository tooling
+- Make and Bun for repository tooling
 - Playwright-compatible browser dependencies
 - Docker for published crawler images and the static-serving stack
 
@@ -26,7 +24,23 @@ CLI crawler for mirroring modern SPAs and Next.js-style sites into static files.
 
 ```bash
 make install-deps
-uv run playwright install chromium
+make ensure-env
+uv run --locked playwright install chromium
+```
+
+Published image:
+
+```bash
+docker pull ghcr.io/hu553in/spa-crawler:latest
+```
+
+`latest` follows `main`; `sha-*` tags identify commits. Pin
+`ghcr.io/hu553in/spa-crawler@sha256:<digest>` for an immutable deployment.
+
+Local image:
+
+```bash
+docker build -f Dockerfile.spa-crawler -t spa-crawler .
 ```
 
 ## Configuration
@@ -61,13 +75,13 @@ Defaults:
 
 ## Usage
 
-Local help:
+Run from a checkout:
 
 ```bash
 make help
 ```
 
-Local crawl with `.env`:
+Crawl with `.env`:
 
 ```bash
 make crawl
@@ -76,11 +90,10 @@ make crawl
 This prompts for the base URL and requires login by default. For a site without authentication:
 
 ```bash
-uv run --env-file .env python3 -m spa_crawler --base-url https://example.com --no-login-required
+uv run --locked --env-file .env python3 -m spa_crawler --base-url https://example.com --no-login-required
 ```
 
-Published crawler image (`latest` follows `main`; use a published `sha-*` tag for an immutable
-deployment):
+Docker:
 
 ```bash
 docker run --rm \
@@ -93,24 +106,18 @@ docker run --rm \
 For authenticated crawls, pass `SPA_CRAWLER_LOGIN` and `SPA_CRAWLER_PASSWORD` as environment
 variables. The image supports only headless mode.
 
+Replace the published image name with `spa-crawler` to run the local image.
+
 ## Output
 
 ```text
 out/
-  redirects.caddy
-  pages/
-  pages_q/
-  assets/
-  assets_q/
+  redirects.caddy  # observed redirects
+  pages/           # HTML pages (**/index.html)
+  pages_q/         # query-based HTML variants
+  assets/          # same-origin assets
+  assets_q/        # query-based asset variants
 ```
-
-Serving layout:
-
-- `out/pages` - HTML root
-- `out/pages_q` - query HTML variants
-- `out/assets` - static assets
-- `out/assets_q` - query-based static variants
-- `out/redirects.caddy` - generated Caddy redirects
 
 Reset generated crawl state and output:
 
@@ -153,7 +160,7 @@ Only crawl content that you are authorized to access, store, and redistribute.
 
 ```bash
 make install-deps
-uv run prek install
+uv run --locked prek install
 make check
 make check-fix
 ```
@@ -163,13 +170,16 @@ Focused checks:
 ```bash
 make lint
 make lint-fix
+make check-hooks
 make check-types
 make check-deps
 make check-vulns
 make check-unused
 make check-security
 make check-config
+make check-renovate
 make test
+make check-workflows
 ```
 
 `make check-config` validates the Compose stack and checks the bundled Caddyfile with

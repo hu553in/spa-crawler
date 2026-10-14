@@ -25,6 +25,9 @@ jobs:
       file: ./Dockerfile.spa-crawler
       no_cache_filters: runner
       build: ${{ github.ref != 'refs/heads/main' }}
+      smoke_command: &python_smoke |
+        /app/.venv/bin/python --version
+        /app/.venv/bin/python -m spa_crawler --help
 
   docker-site:
     permissions:
@@ -37,13 +40,14 @@ jobs:
   publish:
     needs: [check, docker-crawler, docker-site]
     if: github.ref == 'refs/heads/main'
-    uses: hu553in/common-things/.github/workflows/build-publish-attest-docker.yml@main
     permissions:
-      contents: read
-      packages: write
-      id-token: write
       attestations: write
+      contents: read
+      id-token: write
+      packages: write
+    uses: hu553in/common-things/.github/workflows/build-publish-attest-docker.yml@main
     with:
       image: ghcr.io/${{ github.repository }}
       file: ./Dockerfile.spa-crawler
       no_cache_filters: runner
+      smoke_command: *python_smoke
