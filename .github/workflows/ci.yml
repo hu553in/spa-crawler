@@ -24,11 +24,11 @@ jobs:
     with:
       file: ./Dockerfile.spa-crawler
       no_cache_filters: runner
-      build: ${{ github.ref != 'refs/heads/main' }}
       smoke_command: &python_smoke |
         /app/.venv/bin/python --version
         /app/.venv/bin/python -m spa_crawler --help
 
+  # This image is not published, so the default branch keeps its full check.
   docker-site:
     permissions:
       contents: read
@@ -36,6 +36,7 @@ jobs:
     with:
       file: ./Dockerfile.spa
       no_cache_filters: runtime
+      build_default_branch: true
 
   publish:
     needs: [check, docker-crawler, docker-site]
