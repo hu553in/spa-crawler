@@ -10,7 +10,7 @@ dependencies = [
   "crawlee[playwright]>=1.11.1",
   "playwright>=1.64.1",
   "rich>=15.0.0",
-  "typer>=0.27.3",
+  "typer>=0.28.0",
   "yarl>=1.25.1",
 ]
 
@@ -26,7 +26,7 @@ dev = [
   "pytest>=9.2.0",
   "pytest-cov>=7.1.0",
   "ruff>=0.17.4",
-  "ty>=0.0.98",
+  "ty>=0.0.99",
   "vulture>=2.16",
 ]
 
