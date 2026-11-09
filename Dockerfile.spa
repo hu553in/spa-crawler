@@ -17,7 +17,7 @@ RUN --mount=type=cache,target=/go/pkg/mod \
   && CGO_ENABLED=0 xcaddy build "${CADDY_VERSION}" \
   --replace github.com/go-jose/go-jose/v4=github.com/go-jose/go-jose/v4@v4.1.9 \
   --replace golang.org/x/net=golang.org/x/net@v0.62.0 \
-  --replace golang.org/x/text=golang.org/x/text@v0.43.0 \
+  --replace golang.org/x/text=golang.org/x/text@v0.44.0 \
   --replace google.golang.org/grpc=google.golang.org/grpc@v1.85.0 \
   --output /out/caddy
 
