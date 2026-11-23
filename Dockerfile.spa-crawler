@@ -9,6 +9,11 @@ ENV PLAYWRIGHT_BROWSERS_PATH=/ms-playwright \
   UV_PROJECT_ENVIRONMENT=/app/.venv \
   UV_PYTHON_DOWNLOADS=0
 
+RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
+  --mount=type=cache,target=/var/lib/apt/lists,sharing=locked \
+  apt-get update \
+  && apt-get install -y --no-install-recommends libatomic1
+
 COPY pyproject.toml uv.lock ./
 RUN --mount=type=cache,target=/root/.cache/uv \
   uv sync --locked --no-dev \
@@ -24,7 +29,8 @@ ENV PLAYWRIGHT_BROWSERS_PATH=/ms-playwright \
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
   --mount=type=cache,target=/var/lib/apt/lists,sharing=locked \
   apt-get update \
-  && apt-get upgrade -y --no-install-recommends
+  && apt-get upgrade -y --no-install-recommends \
+  && apt-get install -y --no-install-recommends libatomic1
 
 # Runtime dependencies come from the built virtualenv; pip is unused.
 RUN python -m pip uninstall --yes pip \
