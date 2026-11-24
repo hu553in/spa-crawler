@@ -9,6 +9,13 @@ basic_auth @authEnabled {
 	{$BASIC_AUTH_USER} {$BASIC_AUTH_PASSWORD_HASH}
 }
 
+# Query variants use extensionless filenames.
+@javascript path *.js *.mjs
+header @javascript {
+	?Content-Type "text/javascript; charset=utf-8"
+	match status 2xx
+}
+
 encode zstd gzip
 
 log {

@@ -6,9 +6,16 @@ on:
       - main
   pull_request:
   workflow_dispatch:
+    inputs:
+      publish:
+        description: Publish the Docker image
+        type: boolean
+        default: false
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
+  group: >-
+    ${{ github.workflow }}-${{ github.ref }}${{ github.event_name == 'workflow_dispatch' &&
+    !inputs.publish && '-check' || '' }}
   cancel-in-progress: ${{ github.ref_type != 'tag' }}
 
 jobs:
@@ -23,10 +30,38 @@ jobs:
     uses: hu553in/common-things/.github/workflows/check-docker.yml@main
     with:
       file: ./Dockerfile.spa-crawler
+      build_default_branch: ${{ github.event_name == 'workflow_dispatch' && !inputs.publish }}
       no_cache_filters: runner
-      smoke_command: &python_smoke |
-        /app/.venv/bin/python --version
-        /app/.venv/bin/python -m spa_crawler --help
+      smoke_seccomp_profile: &crawler_seccomp docker/playwright-seccomp.json
+      smoke_command: &crawler_smoke |
+        /app/.venv/bin/python - <<'PY'
+        import subprocess
+        import sys
+        from functools import partial
+        from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
+        from pathlib import Path
+        from tempfile import TemporaryDirectory
+        from threading import Thread
+
+        marker = "<main>Local crawler smoke</main>"
+        with TemporaryDirectory() as fixture:
+            Path(fixture, "index.html").write_text(f"<!doctype html>{marker}", encoding="utf-8")
+            handler = partial(SimpleHTTPRequestHandler, directory=fixture)
+            with ThreadingHTTPServer(("127.0.0.1", 0), handler) as server:
+                Thread(target=server.serve_forever, daemon=True).start()
+                subprocess.run(
+                    [
+                        sys.executable, "-m", "spa_crawler",
+                        "--base-url", f"http://127.0.0.1:{server.server_port}",
+                        "--no-login-required",
+                    ],
+                    check=True,
+                    timeout=60,
+                )
+        exported = Path("out/pages/index.html").read_text(encoding="utf-8")
+        if marker not in exported:
+            raise SystemExit("The exported page is missing the fixture content.")
+        PY
 
   # This image is not published, so the default branch keeps its full check.
   docker-site:
@@ -40,7 +75,9 @@ jobs:
 
   publish:
     needs: [check, docker-crawler, docker-site]
-    if: github.ref == 'refs/heads/main'
+    if: >-
+      github.ref == 'refs/heads/main' && (github.event_name == 'push' || (github.event_name ==
+      'workflow_dispatch' && inputs.publish))
     permissions:
       attestations: write
       contents: read
@@ -51,4 +88,5 @@ jobs:
       image: ghcr.io/${{ github.repository }}
       file: ./Dockerfile.spa-crawler
       no_cache_filters: runner
-      smoke_command: *python_smoke
+      smoke_seccomp_profile: *crawler_seccomp
+      smoke_command: *crawler_smoke

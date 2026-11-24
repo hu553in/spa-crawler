@@ -219,7 +219,9 @@ async def crawl(config: CrawlConfig) -> None:
     else:
         entrypoints = post_login_entrypoints
 
-    await crawler.run(entrypoints)
+    stats = await crawler.run(entrypoints)
+    if stats.requests_failed and not stats.requests_finished:
+        raise RuntimeError("All crawl requests failed. See the crawler logs for details.")
 
     logger = logging.getLogger(__name__)
 

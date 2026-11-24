@@ -3,7 +3,6 @@
 SHELL := /bin/bash -euo pipefail
 
 ACTIONLINT := bunx --minimum-release-age 259200 github-actionlint
-TAPLO := bunx --minimum-release-age 259200 @taplo/cli
 
 .PHONY: install-deps
 install-deps:
@@ -12,20 +11,18 @@ install-deps:
 .PHONY: lint
 lint:
 	bun fmt --check
-	$(TAPLO) fmt --check
 	uv run --locked ruff check
 	uv run --locked ruff format --check
 
 .PHONY: lint-fix
 lint-fix:
 	bun fmt
-	$(TAPLO) fmt
 	uv run --locked ruff check --fix
 	uv run --locked ruff format
 
 .PHONY: check-hooks
 check-hooks:
-	uv run --locked prek validate-config prek.toml
+	bunx --minimum-release-age 259200 lefthook validate
 
 .PHONY: check-types
 check-types:
@@ -49,11 +46,11 @@ check-security:
 
 .PHONY: check-config
 check-config:
-	docker compose config --quiet --no-interpolate --no-env-resolution
+	docker compose --env-file /dev/null -f compose.yaml config --quiet --no-interpolate --no-env-resolution
 	@image=$$(awk '/^FROM caddy:.* AS caddy-runtime$$/{print $$2; exit}' Dockerfile.spa); \
 		test -n "$$image"; \
 		env -u ENABLE_BASIC_AUTH -u BASIC_AUTH_USER -u BASIC_AUTH_PASSWORD_HASH \
-			uv run --locked --env-file .env.example docker run --rm --network none --entrypoint /bin/sh \
+			uv run --no-project --env-file .env.example docker run --rm --network none --entrypoint /bin/sh \
 			-e ENABLE_BASIC_AUTH \
 			-e BASIC_AUTH_USER \
 			-e BASIC_AUTH_PASSWORD_HASH \
@@ -79,17 +76,17 @@ check-fix: lint-fix
 
 .PHONY: ensure-env
 ensure-env:
-	if [ ! -f .env ]; then cp .env.example .env; fi
+	if [ ! -e .env ] && [ ! -L .env ]; then (umask 077 && cp .env.example .env); fi
 
 # Project-specific
 
 .PHONY: help
 help:
-	uv run --locked python3 -m spa_crawler --help
+	uv run --locked --no-dev python3 -m spa_crawler --help
 
 .PHONY: crawl
 crawl: ensure-env
-	uv run --locked --env-file .env python3 -m spa_crawler
+	uv run --locked --no-dev --env-file .env python3 -m spa_crawler
 
 .PHONY: start-spa
 start-spa: ensure-env
@@ -100,10 +97,8 @@ stop-spa: ensure-env
 	docker compose down
 
 .PHONY: restart-spa
-restart-spa: stop-spa start-spa
-
-.PHONY: all
-all: stop-spa clean install-deps crawl start-spa
+restart-spa: stop-spa
+	$(MAKE) start-spa
 
 .PHONY: clean
 clean:

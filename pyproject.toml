@@ -21,7 +21,6 @@ Repository = "https://github.com/hu553in/spa-crawler"
 dev = [
   "bandit>=1.9.4",
   "deptry>=0.25.1",
-  "prek>=0.5.11",
   "pysentry-rs>=0.5.0",
   "pytest>=9.2.0",
   "pytest-cov>=7.1.0",
@@ -60,14 +59,7 @@ select = [
   "PGH004",
   "T10",
 ]
-extend-ignore = [
-  "RUF001",
-  "PLR0911",
-  "PLR0912",
-  "PLR0913",
-  "PLR0915",
-  "PLR0917",
-]
+extend-ignore = ["RUF001", "PLR0911", "PLR0912", "PLR0913", "PLR0915", "PLR0917"]
 
 [tool.ruff.lint.isort]
 known-first-party = ["spa_crawler"]

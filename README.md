@@ -14,7 +14,7 @@ CLI crawler for mirroring modern SPAs and Next.js-style sites into static files.
 
 ## Requirements
 
-- Python
+- Python 3.15 or newer
 - `uv`
 - Make and Bun for repository tooling
 - Playwright-compatible browser dependencies
@@ -23,9 +23,8 @@ CLI crawler for mirroring modern SPAs and Next.js-style sites into static files.
 ## Setup
 
 ```bash
-make install-deps
 make ensure-env
-uv run --locked playwright install chromium
+uv run --locked --no-dev playwright install chromium
 ```
 
 Published image:
@@ -90,23 +89,32 @@ make crawl
 This prompts for the base URL and requires login by default. For a site without authentication:
 
 ```bash
-uv run --locked --env-file .env python3 -m spa_crawler --base-url https://example.com --no-login-required
+uv run --locked --no-dev --env-file .env python3 -m spa_crawler --base-url https://example.com --no-login-required
 ```
 
-Docker:
+Docker uses the [Playwright seccomp profile][playwright-seccomp] to run Chromium's sandbox as a
+non-root user. Download the profile from Playwright v1.64.1:
 
 ```bash
+curl -fsSLo playwright-seccomp.json \
+  https://raw.githubusercontent.com/microsoft/playwright/v1.64.1/utils/docker/seccomp_profile.json
+mkdir -p out
 docker run --rm \
+  --security-opt seccomp=playwright-seccomp.json \
   -v "$(pwd)/out:/app/out" \
   ghcr.io/hu553in/spa-crawler:latest \
   --base-url https://example.com \
   --no-login-required
 ```
 
-For authenticated crawls, pass `SPA_CRAWLER_LOGIN` and `SPA_CRAWLER_PASSWORD` as environment
+On Linux, the bind-mounted `out` directory must be writable by the container's `app` user (UID
+1000). For authenticated crawls, pass `SPA_CRAWLER_LOGIN` and `SPA_CRAWLER_PASSWORD` as environment
 variables. The image supports only headless mode.
 
-Replace the published image name with `spa-crawler` to run the local image.
+From a checkout, you can use `--security-opt seccomp=docker/playwright-seccomp.json` instead of
+downloading the profile. Replace the published image name with `spa-crawler` to run the local image.
+
+[playwright-seccomp]: https://playwright.dev/python/docs/docker#crawling-and-scraping
 
 ## Output
 
@@ -159,11 +167,11 @@ Only crawl content that you are authorized to access, store, and redistribute.
 ## Development
 
 ```bash
-make install-deps
-uv run --locked prek install
+bunx lefthook install
 make check
-make check-fix
 ```
+
+Use `make check-fix` to apply supported fixes before the full check.
 
 Focused checks:
 

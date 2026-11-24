@@ -3,6 +3,7 @@ import re
 from collections.abc import Awaitable, Callable
 from dataclasses import replace
 from pathlib import Path
+from types import SimpleNamespace
 from typing import Any, ClassVar
 
 import pytest
@@ -131,7 +132,7 @@ class _FakePlaywrightCrawler:
     def pre_navigation_hook(self, fn: Callable[[_FakeCtx], Awaitable[None]]) -> None:
         self.pre_nav = fn
 
-    async def run(self, entrypoints: list[str | _FakeRequest]) -> None:
+    async def run(self, entrypoints: list[str | _FakeRequest]) -> SimpleNamespace:
         self.run_entrypoints = entrypoints
         for ep in entrypoints:
             req = ep if isinstance(ep, _FakeRequest) else _FakeRequest(str(ep), label=None)
@@ -142,6 +143,7 @@ class _FakePlaywrightCrawler:
                 await self.pre_nav(ctx)
             if self.router.handler:
                 await self.router.handler(ctx)
+        return SimpleNamespace(requests_finished=len(self.contexts), requests_failed=0)
 
 
 class _FakeRedirectCollector:
@@ -513,6 +515,17 @@ def test_crawl_logs_redirect_observe_and_export_errors(
     assert any("redirect-client-observe-error" in msg for msg in warning_msgs)
     assert any("redirect-rules-save-error" in record.message for record in caplog.records)
     assert any("redirect-pages-save-error" in record.message for record in caplog.records)
+
+
+def test_crawl_reports_total_request_failure(monkeypatch, tmp_path: Path) -> None:
+    async def failed_run(_self, _entrypoints) -> SimpleNamespace:
+        return SimpleNamespace(requests_finished=0, requests_failed=1)
+
+    monkeypatch.setattr(crawler_mod, "PlaywrightCrawler", _FakePlaywrightCrawler)
+    monkeypatch.setattr(_FakePlaywrightCrawler, "run", failed_run)
+
+    with pytest.raises(RuntimeError, match="All crawl requests failed"):
+        asyncio.run(crawler_mod.crawl(_make_config(out_dir=tmp_path)))
 
 
 def test_crawl_rejects_root_login_path() -> None:
